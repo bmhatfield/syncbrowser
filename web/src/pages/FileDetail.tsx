@@ -1,18 +1,25 @@
 import { Link, useParams } from 'react-router-dom';
 import {
   AlertCircle,
+  AlertTriangle,
+  CheckCircle2,
   ChevronRight,
+  EyeOff,
   Globe,
   HardDrive,
+  Lock,
   MinusCircle,
+  RefreshCw,
+  Trash2,
   Wifi,
+  type LucideIcon,
 } from 'lucide-react';
 
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
 import { useFile } from '../hooks/useFile';
 import { useFolders } from '../hooks/useFolders';
-import type { STFileEntry } from '../lib/types';
+import type { STFileEntry, STFileInfo } from '../lib/types';
 import { formatBytes, formatDate, shortDeviceID } from '../lib/format';
 
 export function FileDetail() {
@@ -51,7 +58,11 @@ export function FileDetail() {
           <Section title="Global" icon={<Globe className="size-4 text-slate-400" aria-hidden="true" />}>
             <Info data={data.global} deviceNames={deviceNames} />
           </Section>
-          <Section title="Local" icon={<HardDrive className="size-4 text-slate-400" aria-hidden="true" />}>
+          <Section
+            title="Local"
+            icon={<HardDrive className="size-4 text-slate-400" aria-hidden="true" />}
+            aside={<SyncStatus data={data} />}
+          >
             <Info data={data.local} deviceNames={deviceNames} />
           </Section>
           {data.availability && data.availability.length > 0 && (
@@ -87,19 +98,24 @@ export function FileDetail() {
 function Section({
   title,
   icon,
+  aside,
   children,
 }: {
   title: string;
   icon?: React.ReactNode;
+  aside?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
     <Card>
       <CardHeader>
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
-          {icon}
-          {title}
-        </h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+            {icon}
+            {title}
+          </h3>
+          {aside}
+        </div>
       </CardHeader>
       <CardBody>{children}</CardBody>
     </Card>
@@ -122,20 +138,81 @@ function Info({
     );
   }
   return (
-    <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
-      <Detail label="Size" value={formatBytes(data.size)} />
-      <Detail label="Modified" value={formatDate(data.modified)} />
-      <Detail
-        label="Modified by"
-        value={deviceNames.get(data.modifiedBy) ?? shortDeviceID(data.modifiedBy)}
-      />
-      <Detail label="Blocks" value={data.numBlocks ?? '—'} />
-      <Detail label="Type" value={fileTypeLabel(data.type)} />
-      <Detail
-        label="Version"
-        value={<code className="text-xs text-slate-300">{formatVersion(data.version)}</code>}
-      />
-    </dl>
+    <div className="space-y-3">
+      <FlagChips data={data} />
+      <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
+        <Detail label="Size" value={formatBytes(data.size)} />
+        <Detail label="Modified" value={formatDate(data.modified)} />
+        <Detail
+          label="Modified by"
+          value={deviceNames.get(data.modifiedBy) ?? shortDeviceID(data.modifiedBy)}
+        />
+        <Detail label="Blocks" value={data.numBlocks ?? '—'} />
+        <Detail
+          label="Hash"
+          value={
+            data.blocksHash ? (
+              <code className="break-all text-xs text-slate-300">{data.blocksHash}</code>
+            ) : (
+              '—'
+            )
+          }
+        />
+        <Detail label="Type" value={fileTypeLabel(data.type)} />
+        <Detail
+          label="Version"
+          value={<code className="text-xs text-slate-300">{formatVersion(data.version)}</code>}
+        />
+        <Detail label="Sequence" value={data.sequence ?? '—'} />
+      </dl>
+    </div>
+  );
+}
+
+function SyncStatus({ data }: { data: STFileInfo }) {
+  if (!data.global || !data.local) return null;
+  const globalHash = data.global.blocksHash;
+  const localHash = data.local.blocksHash;
+  if (!globalHash || !localHash) return null;
+  if (globalHash === localHash) {
+    return (
+      <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+        <CheckCircle2 className="size-3.5 text-emerald-400" aria-hidden="true" />
+        Matches global
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 text-xs text-rose-300">
+      <AlertTriangle className="size-3.5" aria-hidden="true" />
+      Differs from global
+    </span>
+  );
+}
+
+const FLAGS: { key: keyof STFileEntry; Icon: LucideIcon; label: string; tone: string }[] = [
+  { key: 'deleted', Icon: Trash2, label: 'Deleted', tone: 'bg-rose-500/15 text-rose-300' },
+  { key: 'ignored', Icon: EyeOff, label: 'Ignored', tone: 'bg-slate-500/20 text-slate-300' },
+  { key: 'invalid', Icon: AlertTriangle, label: 'Invalid', tone: 'bg-rose-500/15 text-rose-300' },
+  { key: 'mustRescan', Icon: RefreshCw, label: 'Must rescan', tone: 'bg-amber-500/20 text-amber-300' },
+  { key: 'noPermissions', Icon: Lock, label: 'No permissions', tone: 'bg-amber-500/20 text-amber-300' },
+];
+
+function FlagChips({ data }: { data: STFileEntry }) {
+  const active = FLAGS.filter((f) => data[f.key]);
+  if (active.length === 0) return null;
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {active.map(({ key, Icon, label, tone }) => (
+        <span
+          key={String(key)}
+          className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-xs ${tone}`}
+        >
+          <Icon className="size-3" aria-hidden="true" />
+          {label}
+        </span>
+      ))}
+    </div>
   );
 }
 

@@ -1,7 +1,9 @@
-import { Fragment } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   AlertCircle,
+  ArrowDown,
+  ArrowUp,
   ChevronRight,
   FileText,
   Folder,
@@ -13,6 +15,9 @@ import { Spinner } from '../components/ui/Spinner';
 import { useBrowse } from '../hooks/useBrowse';
 import { useFolders } from '../hooks/useFolders';
 import { formatBytes, formatDate } from '../lib/format';
+
+type SortKey = 'name' | 'size' | 'modified';
+type SortDir = 'asc' | 'desc';
 
 function splitWildcard(rest: string | undefined): string[] {
   if (!rest) return [];
@@ -34,6 +39,47 @@ export function Browse() {
   const folder = folders.data?.folders.find((f) => f.id === folderID);
 
   const browse = useBrowse(folderID, prefix);
+
+  const [sort, setSort] = useState<{ key: SortKey; dir: SortDir }>({
+    key: 'name',
+    dir: 'asc',
+  });
+
+  function handleSort(key: SortKey) {
+    setSort((s) =>
+      s.key === key
+        ? { key, dir: s.dir === 'asc' ? 'desc' : 'asc' }
+        : { key, dir: key === 'name' ? 'asc' : 'desc' },
+    );
+  }
+
+  const sorted = useMemo(() => {
+    if (!browse.data) return [];
+    const sign = sort.dir === 'asc' ? 1 : -1;
+
+    if (sort.key === 'modified') {
+      // No dir/file grouping — sort everything together by modified time.
+      return [...browse.data].sort((a, b) => {
+        const ta = a.modified ? Date.parse(a.modified) : 0;
+        const tb = b.modified ? Date.parse(b.modified) : 0;
+        return sign * (ta - tb);
+      });
+    }
+
+    const dirs = browse.data.filter((e) => e.type === 'dir');
+    const files = browse.data.filter((e) => e.type === 'file');
+
+    if (sort.key === 'size') {
+      dirs.sort((a, b) => a.name.localeCompare(b.name));
+      files.sort((a, b) => sign * ((a.size ?? 0) - (b.size ?? 0)));
+      // Dirs have no meaningful size; place them where nulls would naturally sit.
+      return sort.dir === 'asc' ? [...dirs, ...files] : [...files, ...dirs];
+    }
+
+    dirs.sort((a, b) => sign * a.name.localeCompare(b.name));
+    files.sort((a, b) => sign * a.name.localeCompare(b.name));
+    return [...dirs, ...files];
+  }, [browse.data, sort]);
 
   return (
     <div className="space-y-4">
@@ -57,13 +103,13 @@ export function Browse() {
           <table className="w-full divide-y divide-slate-800 text-sm">
             <thead className="bg-slate-900/60 text-xs uppercase tracking-wide text-slate-400">
               <tr>
-                <th className="px-4 py-2 text-left font-normal">Name</th>
-                <th className="px-4 py-2 text-right font-normal">Size</th>
-                <th className="px-4 py-2 text-right font-normal">Modified</th>
+                <SortHeader label="Name" align="left" active={sort.key === 'name'} dir={sort.dir} onClick={() => handleSort('name')} />
+                <SortHeader label="Size" align="right" active={sort.key === 'size'} dir={sort.dir} onClick={() => handleSort('size')} />
+                <SortHeader label="Modified" align="right" active={sort.key === 'modified'} dir={sort.dir} onClick={() => handleSort('modified')} />
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800/60">
-              {browse.data?.map((entry) => {
+              {sorted.map((entry) => {
                 const childPath = `${prefix}${entry.name}`;
                 const target =
                   entry.type === 'dir'
@@ -88,7 +134,7 @@ export function Browse() {
                       {entry.type === 'file' ? formatBytes(entry.size) : ''}
                     </td>
                     <td className="px-4 py-2 text-right tabular-nums text-slate-400">
-                      {entry.type === 'file' ? formatDate(entry.modified) : ''}
+                      {formatDate(entry.modified)}
                     </td>
                   </tr>
                 );
@@ -98,6 +144,37 @@ export function Browse() {
         )}
       </Card>
     </div>
+  );
+}
+
+function SortHeader({
+  label,
+  align,
+  active,
+  dir,
+  onClick,
+}: {
+  label: string;
+  align: 'left' | 'right';
+  active: boolean;
+  dir: SortDir;
+  onClick: () => void;
+}) {
+  return (
+    <th className={`px-4 py-2 font-normal ${align === 'right' ? 'text-right' : 'text-left'}`}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={`inline-flex items-center gap-1 hover:text-slate-200 ${active ? 'text-slate-200' : ''}`}
+      >
+        {label}
+        {active && (dir === 'asc' ? (
+          <ArrowUp className="size-3" aria-hidden="true" />
+        ) : (
+          <ArrowDown className="size-3" aria-hidden="true" />
+        ))}
+      </button>
+    </th>
   );
 }
 

@@ -84,6 +84,13 @@ export interface STFileEntry {
   version?: unknown;
   numBlocks?: number;
   blocks?: STFileBlock[];
+  blocksHash?: string;
+  sequence?: number;
+  deleted?: boolean;
+  ignored?: boolean;
+  invalid?: boolean;
+  mustRescan?: boolean;
+  noPermissions?: boolean;
 }
 
 export interface STFileInfo {

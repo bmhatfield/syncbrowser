@@ -12,6 +12,8 @@ interface BrowseItem {
   name?: string;
   type?: string | number;
   size?: number;
+  // /db/browse uses `modTime`; /db/file uses `modified`. Keep both.
+  modTime?: string;
   modified?: string;
 }
 
@@ -38,7 +40,7 @@ function parseBrowse(raw: STBrowseRaw): BrowseEntry[] {
         name: item.name,
         type: isDir ? 'dir' : 'file',
         size: isDir ? undefined : item.size,
-        modified: item.modified,
+        modified: item.modTime ?? item.modified,
       });
     }
   } else if (raw && typeof raw === 'object') {
@@ -60,10 +62,6 @@ function parseBrowse(raw: STBrowseRaw): BrowseEntry[] {
     }
   }
 
-  out.sort((a, b) => {
-    if (a.type !== b.type) return a.type === 'dir' ? -1 : 1;
-    return a.name.localeCompare(b.name);
-  });
   return out;
 }
 
