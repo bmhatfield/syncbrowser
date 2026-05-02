@@ -24,7 +24,13 @@ func newProxy(cfg config.Config, logger *slog.Logger) http.Handler {
 			}
 			r.Out.URL.Path = "/rest" + rest
 			r.Out.URL.RawPath = ""
-			r.Out.Host = upstream.Host
+			// Syncthing's GUI rejects non-localhost Host headers (DNS-rebinding
+			// guard) with 403 "Host check error". Force localhost so the proxy
+			// works when upstream is host.docker.internal, a LAN IP, etc.
+			r.Out.Host = "localhost"
+			if port := upstream.Port(); port != "" {
+				r.Out.Host = "localhost:" + port
+			}
 
 			if key := apiKeyFromCookie(r.In); key != "" {
 				r.Out.Header.Set("X-API-Key", key)

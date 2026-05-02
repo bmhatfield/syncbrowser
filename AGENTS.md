@@ -46,6 +46,7 @@ Don't undo these. They're what keeps the project small.
 | CSRF: `SameSite=Strict` + `X-Requested-With: syncbrowser` header on state-changing methods | SameSite already blocks cross-site; the header check is belt-and-suspenders and kills form-post CSRF entirely. |
 | `FlushInterval: -1` on the proxy + `Accept-Encoding` stripped on outbound | Required so `/rest/events` long-poll responses stream through unbuffered. |
 | `Cookie` header deleted on outbound to upstream | Our cookie must never leak to Syncthing. |
+| Outbound `Host` rewritten to `localhost[:port]` | Syncthing's GUI rejects non-localhost Host headers (DNS-rebinding guard) with 403 "Host check error". Keeps the proxy working when upstream is `host.docker.internal`, a LAN IP, etc. |
 | `embed.FS` lives in `web/web.go` | `//go:embed` paths are relative to the source file, so `web.go` must sit at or above `web/dist/`. A stub `web/dist/index.html` + `.gitkeep` are committed so `go run` works on a fresh clone before any frontend build. |
 | React 19 + Vite + TypeScript | Largest ecosystem for the libs we want (TanStack Query, vite-plugin-pwa, React Router). |
 | TanStack Query v5 with structured keys (`['browse', folderID, prefix, levels]`) | Cache invalidation from `/rest/events` works by matching key prefixes. |
@@ -277,6 +278,9 @@ run the full e2e, say so explicitly rather than claiming success.
 - **Don't drop `FlushInterval: -1` from the proxy.** Live events break.
 - **Don't drop the `Accept-Encoding` deletion in the proxy rewrite.**
   Upstream gzip can buffer event chunks.
+- **Don't restore `r.Out.Host = upstream.Host` in the proxy.** Syncthing's
+  GUI host-check rejects non-localhost Host headers; the symptom is a 403
+  "Host check error" surfaced in the UI as "Failed to load folders".
 - **Don't commit built assets.** `web/dist/*` is gitignored except
   `.gitkeep` and the stub `index.html`. If `git status` shows a giant
   diff in `web/dist/`, something's wrong with the ignore rules.
