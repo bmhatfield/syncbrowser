@@ -1,0 +1,19 @@
+services:
+  syncbrowser:
+    build: .
+    image: syncbrowser:local
+    ports:
+      - "8385:8385"
+    environment:
+      # Address of the Syncthing REST API to proxy. Examples:
+      #   http://host.docker.internal:8384  — Syncthing on the Docker host
+      #   http://192.168.1.10:8384          — Syncthing on another LAN host
+      #   http://syncthing:8384             — Syncthing as a sibling service
+      SYNCBROWSER_UPSTREAM: http://host.docker.internal:8384
+      # SYNCBROWSER_LOG_LEVEL: info
+      # SYNCBROWSER_COOKIE_TTL: 0
+    # Makes host.docker.internal resolve to the host on Linux.
+    # No-op on Docker Desktop (Mac/Windows), where it's already defined.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

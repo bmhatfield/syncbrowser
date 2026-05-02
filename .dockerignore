@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+.vscode
+.idea
+.golangci.yml
+bin/
+web/node_modules/
+web/dist/
+README.md
+AGENTS.md
+CLAUDE.md
+Dockerfile
+docker-compose.yml
+.dockerignore
