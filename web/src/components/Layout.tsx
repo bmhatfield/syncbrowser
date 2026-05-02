@@ -6,6 +6,7 @@ import { useAuthStatus, useLogout } from '../hooks/useAuth';
 import { eventsEnabled, setEventsEnabled, useEvents } from '../hooks/useEvents';
 import { Button } from './ui/Button';
 import { Spinner } from './ui/Spinner';
+import { DeviceStatus } from './DeviceStatus';
 
 export function Layout() {
   const status = useAuthStatus();
@@ -75,6 +76,7 @@ export function Layout() {
             </Button>
           </div>
         </div>
+        <DeviceStatus />
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
         <Outlet />

@@ -84,6 +84,12 @@ export function useEvents(enabled: boolean): void {
                 break;
             }
           }
+          // Refresh device-level status (uptime, listeners, discovery) on any
+          // activity. Empty long-poll timeouts are skipped so we don't
+          // refetch on a 60s cadence with no events.
+          if (events.length > 0) {
+            void qc.invalidateQueries({ queryKey: ['systemStatus'] });
+          }
         } catch (err) {
           if (err instanceof Error && err.name === 'AbortError') return;
           await sleep(2000);

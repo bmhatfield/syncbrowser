@@ -60,9 +60,33 @@ export interface STFolderStatus {
   watchError?: string;
   globalFiles: number;
   globalBytes: number;
+  localFiles: number;
+  localDirectories: number;
+  localBytes: number;
   needTotalItems: number;
   needBytes: number;
   inSyncBytes: number;
+}
+
+// /rest/system/status — narrow to the fields the header reads.
+// connectionServiceStatus / discoveryStatus are maps keyed by listener or
+// discovery method. An entry with a non-empty `error` is a failed method.
+export interface STServiceStatus {
+  error?: string | null;
+}
+
+export interface STSystemStatus {
+  myID: string;
+  uptime: number;
+  connectionServiceStatus?: Record<string, STServiceStatus>;
+  discoveryStatus?: Record<string, STServiceStatus>;
+}
+
+// /rest/system/version
+export interface STSystemVersion {
+  version: string;
+  os: string;
+  arch: string;
 }
 
 // /rest/db/browse returns either a recursive map (object → object | name[])
