@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react';
 
 const pillTones = {
-  amber: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  sky: 'bg-sky-500/15 text-sky-300 ring-sky-500/30',
-  rose: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
-  slate: 'bg-slate-700/40 text-slate-300 ring-slate-600/40',
+  amber: 'bg-warn/15 text-warning ring-warn/30',
+  sky: 'bg-info/15 text-primary ring-info/30',
+  rose: 'bg-danger/15 text-error ring-danger/30',
+  slate: 'bg-neutral/15 text-fg-muted ring-neutral/30',
 } as const;
 
 export type PillTone = keyof typeof pillTones;

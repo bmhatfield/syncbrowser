@@ -33,7 +33,7 @@ export function Devices() {
   }
   if (error) {
     return (
-      <p className="flex items-center gap-1.5 text-rose-400">
+      <p className="flex items-center gap-1.5 text-error">
         <AlertCircle className="size-4" aria-hidden="true" />
         Failed to load devices: {error.message}
       </p>
@@ -45,8 +45,8 @@ export function Devices() {
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Devices</h2>
       {data.devices.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-12 text-slate-500">
-          <ServerOff className="size-8 text-slate-600" aria-hidden="true" />
+        <div className="flex flex-col items-center gap-2 py-12 text-fg-faint">
+          <ServerOff className="size-8 text-fg-faintest" aria-hidden="true" />
           <p>No devices configured.</p>
         </div>
       )}
@@ -81,8 +81,8 @@ function DeviceCard({ device, folders }: { device: STDevice; folders: STFolder[]
     <Card>
       <CardHeader>
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="flex items-center gap-1.5 text-base font-medium text-slate-100">
-            <Server className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+          <span className="flex items-center gap-1.5 text-base font-medium text-fg">
+            <Server className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
             <span className="truncate">{device.name || shortDeviceID(device.deviceID)}</span>
           </span>
           {device.paused && <Pill tone="slate" Icon={Eye}>Paused</Pill>}
@@ -90,7 +90,7 @@ function DeviceCard({ device, folders }: { device: STDevice; folders: STFolder[]
           {device.introducer && <Pill tone="sky" Icon={UserPlus}>Introducer</Pill>}
           {device.autoAcceptFolders && <Pill tone="sky" Icon={UserCheck}>Auto-accept</Pill>}
         </div>
-        <p className="ml-5 truncate text-xs text-slate-500" title={device.deviceID}>
+        <p className="ml-5 truncate text-xs text-fg-faint" title={device.deviceID}>
           {shortDeviceID(device.deviceID)}
         </p>
       </CardHeader>
@@ -98,7 +98,7 @@ function DeviceCard({ device, folders }: { device: STDevice; folders: STFolder[]
         {showAddresses && (
           <Row
             label="Addresses"
-            value={<span className="break-all text-slate-300">{addresses.join(', ')}</span>}
+            value={<span className="break-all text-fg-muted">{addresses.join(', ')}</span>}
           />
         )}
         <Row label="Compression" value={compressionLabel(device.compression)} />
@@ -125,8 +125,8 @@ function DeviceCard({ device, folders }: { device: STDevice; folders: STFolder[]
 function Row({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className="flex gap-3">
-      <span className="w-24 shrink-0 text-xs uppercase tracking-wide text-slate-500">{label}</span>
-      <span className="min-w-0 flex-1 text-slate-200">{value}</span>
+      <span className="w-24 shrink-0 text-xs uppercase tracking-wide text-fg-faint">{label}</span>
+      <span className="min-w-0 flex-1 text-fg">{value}</span>
     </div>
   );
 }
@@ -144,19 +144,19 @@ function compressionLabel(c: string | undefined): string {
 
 function LimitsLabel({ send, recv }: { send: number; recv: number }) {
   return (
-    <span className="inline-flex items-center gap-3 text-slate-200">
+    <span className="inline-flex items-center gap-3 text-fg">
       {send > 0 && (
         <span className="inline-flex items-center gap-1">
-          <ArrowUp className="size-3.5 text-slate-400" aria-hidden="true" />
+          <ArrowUp className="size-3.5 text-fg-subtle" aria-hidden="true" />
           <span className="tabular-nums">{send.toLocaleString()}</span>
-          <span className="text-xs text-slate-500">KB/s</span>
+          <span className="text-xs text-fg-faint">KB/s</span>
         </span>
       )}
       {recv > 0 && (
         <span className="inline-flex items-center gap-1">
-          <ArrowDown className="size-3.5 text-slate-400" aria-hidden="true" />
+          <ArrowDown className="size-3.5 text-fg-subtle" aria-hidden="true" />
           <span className="tabular-nums">{recv.toLocaleString()}</span>
-          <span className="text-xs text-slate-500">KB/s</span>
+          <span className="text-xs text-fg-faint">KB/s</span>
         </span>
       )}
     </span>
@@ -164,14 +164,14 @@ function LimitsLabel({ send, recv }: { send: number; recv: number }) {
 }
 
 function SharedFolders({ shared }: { shared: SharedFolder[] }) {
-  if (shared.length === 0) return <span className="text-slate-500">—</span>;
+  if (shared.length === 0) return <span className="text-fg-faint">—</span>;
   return (
     <ul className="flex flex-wrap gap-x-3 gap-y-1">
       {shared.map(({ folder, encrypted }) => (
         <li key={folder.id} className="flex items-center gap-1">
           <Link
             to={`/folders/${encodeURIComponent(folder.id)}/browse/`}
-            className="text-sky-400 hover:underline"
+            className="text-primary hover:underline"
             title={folder.id}
           >
             {folder.label || folder.id}

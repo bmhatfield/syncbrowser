@@ -32,11 +32,11 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
+      <header className="border-b border-border bg-canvas/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
           <Link
             to="/folders"
-            className="flex items-center gap-2 text-lg font-semibold text-sky-400"
+            className="flex items-center gap-2 text-lg font-semibold text-primary"
           >
             <FolderTree className="size-5" aria-hidden="true" />
             syncbrowser
@@ -46,10 +46,10 @@ export function Layout() {
             <NavTab to="/devices">Devices</NavTab>
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
-            <label className="flex items-center gap-2 text-slate-300">
+            <label className="flex items-center gap-2 text-fg-muted">
               <input
                 type="checkbox"
-                className="size-4 accent-sky-500"
+                className="size-4 accent-primary"
                 checked={liveOn}
                 onChange={(e) => {
                   setLiveOn(e.target.checked);
@@ -57,7 +57,7 @@ export function Layout() {
                 }}
               />
               <Activity
-                className={'size-3.5 ' + (liveOn ? 'text-sky-400' : 'text-slate-600')}
+                className={'size-3.5 ' + (liveOn ? 'text-primary' : 'text-fg-faintest')}
                 aria-hidden="true"
               />
               Live updates
@@ -88,8 +88,8 @@ function NavTab({ to, children }: { to: string; children: React.ReactNode }) {
     <NavLink
       to={to}
       className={({ isActive }) =>
-        'rounded-md px-2 py-1 text-slate-300 hover:bg-slate-800 hover:text-slate-100 ' +
-        (isActive ? 'bg-slate-800 text-slate-100' : '')
+        'rounded-md px-2 py-1 text-fg-muted hover:bg-surface-2 hover:text-fg ' +
+        (isActive ? 'bg-surface-2 text-fg' : '')
       }
     >
       {children}

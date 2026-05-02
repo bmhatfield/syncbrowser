@@ -5,7 +5,7 @@ export function Spinner({ className = '' }: { className?: string }) {
     <Loader2
       role="status"
       aria-label="Loading"
-      className={'size-4 animate-spin text-sky-400 ' + className}
+      className={'size-4 animate-spin text-primary ' + className}
     />
   );
 }

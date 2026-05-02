@@ -38,16 +38,16 @@ export function Needs() {
 
   return (
     <div className="space-y-4">
-      <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
-        <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
-        <Link to={`/folders/${id}/browse/`} className="hover:text-slate-200">{folder?.label ?? folderID}</Link>
-        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
-        <span className="text-slate-200">Needs</span>
+      <nav className="flex flex-wrap items-center gap-1 text-sm text-fg-subtle">
+        <Link to="/folders" className="hover:text-fg">All folders</Link>
+        <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />
+        <Link to={`/folders/${id}/browse/`} className="hover:text-fg">{folder?.label ?? folderID}</Link>
+        <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />
+        <span className="text-fg">Needs</span>
       </nav>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="inline-flex rounded-md border border-slate-800 bg-slate-900/60 p-1 text-sm">
+        <div className="inline-flex rounded-md border border-border bg-surface/60 p-1 text-sm">
           <TabButton active={tab === 'local'} onClick={() => setTab('local')}>
             <Download className="size-3.5" aria-hidden="true" />
             Local needs
@@ -59,7 +59,7 @@ export function Needs() {
         </div>
         {tab === 'remote' && (
           <select
-            className="rounded-md border border-slate-700 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+            className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-fg"
             value={device}
             onChange={(e) => setDevice(e.target.value)}
           >
@@ -87,7 +87,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
       onClick={onClick}
       className={
         'flex items-center gap-1.5 rounded px-3 py-1 ' +
-        (active ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200')
+        (active ? 'bg-surface-2 text-fg' : 'text-fg-subtle hover:text-fg')
       }
     >
       {children}
@@ -103,7 +103,7 @@ function LocalNeed({ folderID }: { folderID: string }) {
 function RemoteNeed({ folderID, device }: { folderID: string; device: string }) {
   const q = useRemoteNeed(folderID, device);
   if (!device) {
-    return <p className="text-sm text-slate-400">Pick a peer above to see what they still need.</p>;
+    return <p className="text-sm text-fg-subtle">Pick a peer above to see what they still need.</p>;
   }
   return <NeedTable label="Remote needs" query={q} />;
 }
@@ -120,7 +120,7 @@ function NeedTable({
   }
   if (query.error) {
     return (
-      <div className="flex flex-col items-center gap-2 py-10 text-sm text-rose-400">
+      <div className="flex flex-col items-center gap-2 py-10 text-sm text-error">
         <AlertCircle className="size-8" aria-hidden="true" />
         <p>{(query.error as Error).message}</p>
       </div>
@@ -135,16 +135,16 @@ function NeedTable({
   ];
   if (all.length === 0) {
     return (
-      <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-400">
-        <CheckCircle2 className="size-8 text-emerald-400" aria-hidden="true" />
+      <div className="flex flex-col items-center gap-2 py-10 text-sm text-fg-subtle">
+        <CheckCircle2 className="size-8 text-success" aria-hidden="true" />
         <p>{label}: nothing pending. Fully in sync.</p>
       </div>
     );
   }
   return (
     <Card className="overflow-hidden">
-      <table className="w-full divide-y divide-slate-800 text-sm">
-        <thead className="bg-slate-900/60 text-xs uppercase tracking-wide text-slate-400">
+      <table className="w-full divide-y divide-border text-sm">
+        <thead className="bg-surface/60 text-xs uppercase tracking-wide text-fg-subtle">
           <tr>
             <th className="px-4 py-2 text-left font-normal">Name</th>
             <th className="px-4 py-2 text-left font-normal">Group</th>
@@ -152,13 +152,13 @@ function NeedTable({
             <th className="px-4 py-2 text-right font-normal">Modified</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-800/60">
+        <tbody className="divide-y divide-border/60">
           {all.map((f) => (
-            <tr key={`${f.group}:${f.name}`} className="hover:bg-slate-800/50">
-              <td className="px-4 py-2 text-slate-200">{f.name}</td>
-              <td className="px-4 py-2 text-slate-400">{f.group}</td>
-              <td className="px-4 py-2 text-right tabular-nums text-slate-300">{formatBytes(f.size)}</td>
-              <td className="px-4 py-2 text-right tabular-nums text-slate-400">{formatDate(f.modified)}</td>
+            <tr key={`${f.group}:${f.name}`} className="hover:bg-surface-2/50">
+              <td className="px-4 py-2 text-fg">{f.name}</td>
+              <td className="px-4 py-2 text-fg-subtle">{f.group}</td>
+              <td className="px-4 py-2 text-right tabular-nums text-fg-muted">{formatBytes(f.size)}</td>
+              <td className="px-4 py-2 text-right tabular-nums text-fg-subtle">{formatDate(f.modified)}</td>
             </tr>
           ))}
         </tbody>

@@ -36,12 +36,12 @@ export function FileDetail() {
 
   return (
     <div className="space-y-4">
-      <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
-        <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
-        <Link to={`/folders/${id}/browse/`} className="hover:text-slate-200">{folderID}</Link>
-        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
-        <span className="text-slate-200" title={filePath}>{filePath || '(root)'}</span>
+      <nav className="flex flex-wrap items-center gap-1 text-sm text-fg-subtle">
+        <Link to="/folders" className="hover:text-fg">All folders</Link>
+        <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />
+        <Link to={`/folders/${id}/browse/`} className="hover:text-fg">{folderID}</Link>
+        <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />
+        <span className="text-fg" title={filePath}>{filePath || '(root)'}</span>
       </nav>
 
       {isLoading ? (
@@ -49,18 +49,18 @@ export function FileDetail() {
           <Spinner className="size-5" />
         </div>
       ) : error ? (
-        <p className="flex items-center gap-1.5 text-rose-400">
+        <p className="flex items-center gap-1.5 text-error">
           <AlertCircle className="size-4" aria-hidden="true" />
           {error.message}
         </p>
       ) : data ? (
         <div className="grid gap-4 md:grid-cols-2">
-          <Section title="Global" icon={<Globe className="size-4 text-slate-400" aria-hidden="true" />}>
+          <Section title="Global" icon={<Globe className="size-4 text-fg-subtle" aria-hidden="true" />}>
             <Info data={data.global} deviceNames={deviceNames} />
           </Section>
           <Section
             title="Local"
-            icon={<HardDrive className="size-4 text-slate-400" aria-hidden="true" />}
+            icon={<HardDrive className="size-4 text-fg-subtle" aria-hidden="true" />}
             aside={<SyncStatus data={data} />}
           >
             <Info data={data.local} deviceNames={deviceNames} />
@@ -68,8 +68,8 @@ export function FileDetail() {
           {data.availability && data.availability.length > 0 && (
             <Card className="md:col-span-2">
               <CardHeader>
-                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
-                  <Wifi className="size-4 text-slate-400" aria-hidden="true" />
+                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-fg">
+                  <Wifi className="size-4 text-fg-subtle" aria-hidden="true" />
                   Availability
                 </h3>
               </CardHeader>
@@ -77,9 +77,9 @@ export function FileDetail() {
                 <ul className="space-y-1 text-sm">
                   {data.availability.map((a, i) => (
                     <li key={`${a.id}-${i}`} className="flex items-center gap-2">
-                      <span className="text-slate-200">{deviceNames.get(a.id) ?? shortDeviceID(a.id)}</span>
+                      <span className="text-fg">{deviceNames.get(a.id) ?? shortDeviceID(a.id)}</span>
                       {a.fromTemporary && (
-                        <span className="rounded bg-amber-500/20 px-1.5 py-0.5 text-xs text-amber-300">
+                        <span className="rounded bg-warn/20 px-1.5 py-0.5 text-xs text-warning">
                           temporary
                         </span>
                       )}
@@ -110,7 +110,7 @@ function Section({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
-          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+          <h3 className="flex items-center gap-1.5 text-sm font-semibold text-fg">
             {icon}
             {title}
           </h3>
@@ -131,8 +131,8 @@ function Info({
 }) {
   if (!data) {
     return (
-      <p className="flex items-center gap-1.5 text-sm text-slate-500">
-        <MinusCircle className="size-4 text-slate-600" aria-hidden="true" />
+      <p className="flex items-center gap-1.5 text-sm text-fg-faint">
+        <MinusCircle className="size-4 text-fg-faintest" aria-hidden="true" />
         Not present.
       </p>
     );
@@ -152,7 +152,7 @@ function Info({
           label="Hash"
           value={
             data.blocksHash ? (
-              <code className="break-all text-xs text-slate-300">{data.blocksHash}</code>
+              <code className="break-all text-xs text-fg-muted">{data.blocksHash}</code>
             ) : (
               '—'
             )
@@ -161,7 +161,7 @@ function Info({
         <Detail label="Type" value={fileTypeLabel(data.type)} />
         <Detail
           label="Version"
-          value={<code className="text-xs text-slate-300">{formatVersion(data.version)}</code>}
+          value={<code className="text-xs text-fg-muted">{formatVersion(data.version)}</code>}
         />
         <Detail label="Sequence" value={data.sequence ?? '—'} />
       </dl>
@@ -176,14 +176,14 @@ function SyncStatus({ data }: { data: STFileInfo }) {
   if (!globalHash || !localHash) return null;
   if (globalHash === localHash) {
     return (
-      <span className="inline-flex items-center gap-1 text-xs text-slate-400">
-        <CheckCircle2 className="size-3.5 text-emerald-400" aria-hidden="true" />
+      <span className="inline-flex items-center gap-1 text-xs text-fg-subtle">
+        <CheckCircle2 className="size-3.5 text-success" aria-hidden="true" />
         Matches global
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1 text-xs text-rose-300">
+    <span className="inline-flex items-center gap-1 text-xs text-error">
       <AlertTriangle className="size-3.5" aria-hidden="true" />
       Differs from global
     </span>
@@ -191,11 +191,11 @@ function SyncStatus({ data }: { data: STFileInfo }) {
 }
 
 const FLAGS: { key: keyof STFileEntry; Icon: LucideIcon; label: string; tone: string }[] = [
-  { key: 'deleted', Icon: Trash2, label: 'Deleted', tone: 'bg-rose-500/15 text-rose-300' },
-  { key: 'ignored', Icon: EyeOff, label: 'Ignored', tone: 'bg-slate-500/20 text-slate-300' },
-  { key: 'invalid', Icon: AlertTriangle, label: 'Invalid', tone: 'bg-rose-500/15 text-rose-300' },
-  { key: 'mustRescan', Icon: RefreshCw, label: 'Must rescan', tone: 'bg-amber-500/20 text-amber-300' },
-  { key: 'noPermissions', Icon: Lock, label: 'No permissions', tone: 'bg-amber-500/20 text-amber-300' },
+  { key: 'deleted', Icon: Trash2, label: 'Deleted', tone: 'bg-danger/15 text-error' },
+  { key: 'ignored', Icon: EyeOff, label: 'Ignored', tone: 'bg-neutral/20 text-fg-muted' },
+  { key: 'invalid', Icon: AlertTriangle, label: 'Invalid', tone: 'bg-danger/15 text-error' },
+  { key: 'mustRescan', Icon: RefreshCw, label: 'Must rescan', tone: 'bg-warn/20 text-warning' },
+  { key: 'noPermissions', Icon: Lock, label: 'No permissions', tone: 'bg-warn/20 text-warning' },
 ];
 
 function FlagChips({ data }: { data: STFileEntry }) {
@@ -219,8 +219,8 @@ function FlagChips({ data }: { data: STFileEntry }) {
 function Detail({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <>
-      <dt className="text-xs uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="text-slate-200">{value}</dd>
+      <dt className="text-xs uppercase tracking-wide text-fg-faint">{label}</dt>
+      <dd className="text-fg">{value}</dd>
     </>
   );
 }

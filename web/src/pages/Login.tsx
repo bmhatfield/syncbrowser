@@ -37,10 +37,10 @@ export function Login() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <div className="flex items-center gap-2">
-            <KeyRound className="size-5 text-sky-400" aria-hidden="true" />
-            <h1 className="text-lg font-semibold text-sky-400">syncbrowser</h1>
+            <KeyRound className="size-5 text-primary" aria-hidden="true" />
+            <h1 className="text-lg font-semibold text-primary">syncbrowser</h1>
           </div>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-fg-subtle">
             Paste your Syncthing API key to begin.
           </p>
         </CardHeader>
@@ -50,7 +50,7 @@ export function Login() {
             onSubmit={(e) => { void handleSubmit(e); }}
           >
             <label className="block text-sm">
-              <span className="mb-1 block text-slate-300">API key</span>
+              <span className="mb-1 block text-fg-muted">API key</span>
               <Input
                 type="password"
                 autoComplete="off"
@@ -62,7 +62,7 @@ export function Login() {
               />
             </label>
             {error && (
-              <p className="flex items-center gap-1.5 text-sm text-rose-400">
+              <p className="flex items-center gap-1.5 text-sm text-error">
                 <AlertCircle className="size-4" aria-hidden="true" />
                 {error}
               </p>
@@ -80,7 +80,7 @@ export function Login() {
                 </>
               )}
             </Button>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-fg-faint">
               The key is stored in an HttpOnly cookie scoped to <code>/api</code> and
               never sent to other origins.
             </p>

@@ -38,7 +38,7 @@ export function Folders() {
   }
   if (error) {
     return (
-      <p className="flex items-center gap-1.5 text-rose-400">
+      <p className="flex items-center gap-1.5 text-error">
         <AlertCircle className="size-4" aria-hidden="true" />
         Failed to load folders: {error.message}
       </p>
@@ -52,8 +52,8 @@ export function Folders() {
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Folders</h2>
       {data.folders.length === 0 && (
-        <div className="flex flex-col items-center gap-2 py-12 text-slate-500">
-          <FolderX className="size-8 text-slate-600" aria-hidden="true" />
+        <div className="flex flex-col items-center gap-2 py-12 text-fg-faint">
+          <FolderX className="size-8 text-fg-faintest" aria-hidden="true" />
           <p>No folders configured.</p>
         </div>
       )}
@@ -80,7 +80,7 @@ function FolderCard({
           <div className="flex flex-wrap items-center gap-1.5">
             <Link
               to={`/folders/${encodeURIComponent(f.id)}/browse/`}
-              className="flex items-center gap-1.5 text-base font-medium text-sky-400 hover:underline"
+              className="flex items-center gap-1.5 text-base font-medium text-primary hover:underline"
             >
               <Folder className="size-4 shrink-0" aria-hidden="true" />
               <span className="truncate">{f.label || f.id}</span>
@@ -90,18 +90,18 @@ function FolderCard({
             {f.disableFsync && <Pill tone="amber" Icon={HardDriveDownload}>fsync off</Pill>}
             {f.ignorePerms && <Pill tone="slate" Icon={ShieldOff}>Perms ignored</Pill>}
           </div>
-          <p className="ml-5 truncate text-xs text-slate-500" title={f.id}>{f.id}</p>
+          <p className="ml-5 truncate text-xs text-fg-faint" title={f.id}>{f.id}</p>
         </div>
         <Link
           to={`/folders/${encodeURIComponent(f.id)}/needs`}
-          className="flex shrink-0 items-center gap-1 text-xs text-slate-300 hover:text-slate-100"
+          className="flex shrink-0 items-center gap-1 text-xs text-fg-muted hover:text-fg"
         >
           Needs
           <ArrowRight className="size-3.5" aria-hidden="true" />
         </Link>
       </CardHeader>
       <CardBody className="space-y-2 text-sm">
-        <Row label="Path" value={<code className="text-slate-300">{f.path}</code>} />
+        <Row label="Path" value={<code className="text-fg-muted">{f.path}</code>} />
         <Row label="Type" value={<FolderType type={f.type} />} />
         <Row label="Versioning" value={versioningLabel(f.versioning?.type)} />
         <Row label="Watcher" value={watcherLabel(f.fsWatcherEnabled, f.rescanIntervalS)} />
@@ -124,8 +124,8 @@ function FolderCard({
 function Row({ label, value }: { label: ReactNode; value: ReactNode }) {
   return (
     <div className="flex gap-3">
-      <span className="w-20 shrink-0 text-xs uppercase tracking-wide text-slate-500">{label}</span>
-      <span className="min-w-0 flex-1 text-slate-200">{value}</span>
+      <span className="w-20 shrink-0 text-xs uppercase tracking-wide text-fg-faint">{label}</span>
+      <span className="min-w-0 flex-1 text-fg">{value}</span>
     </div>
   );
 }
@@ -145,22 +145,22 @@ function folderTypeMeta(type: string): { label: string; icon: ReactNode } {
     case 'sendreceive':
       return {
         label: 'Send & Receive',
-        icon: <ArrowDownUp className="size-3.5 text-slate-400" aria-hidden="true" />,
+        icon: <ArrowDownUp className="size-3.5 text-fg-subtle" aria-hidden="true" />,
       };
     case 'sendonly':
       return {
         label: 'Send Only',
-        icon: <ArrowUp className="size-3.5 text-slate-400" aria-hidden="true" />,
+        icon: <ArrowUp className="size-3.5 text-fg-subtle" aria-hidden="true" />,
       };
     case 'receiveonly':
       return {
         label: 'Receive Only',
-        icon: <ArrowDown className="size-3.5 text-slate-400" aria-hidden="true" />,
+        icon: <ArrowDown className="size-3.5 text-fg-subtle" aria-hidden="true" />,
       };
     case 'receiveencrypted':
       return {
         label: 'Receive Encrypted',
-        icon: <Lock className="size-3.5 text-slate-400" aria-hidden="true" />,
+        icon: <Lock className="size-3.5 text-fg-subtle" aria-hidden="true" />,
       };
     default:
       return { label: type || '—', icon: null };
@@ -205,7 +205,7 @@ function PeerList({
   folderDevices: STFolderDevice[];
   devicesByID: Map<string, STDevice>;
 }) {
-  if (folderDevices.length === 0) return <span className="text-slate-500">—</span>;
+  if (folderDevices.length === 0) return <span className="text-fg-faint">—</span>;
   return (
     <ul className="flex flex-wrap gap-x-3 gap-y-1">
       {folderDevices.map((fd) => {
@@ -215,7 +215,7 @@ function PeerList({
         const encrypted = (fd.encryptionPassword ?? '') !== '';
         return (
           <li key={fd.deviceID} className="flex items-center gap-1">
-            <span className={dev.paused ? 'text-slate-500 line-through' : 'text-slate-200'}>
+            <span className={dev.paused ? 'text-fg-faint line-through' : 'text-fg'}>
               {name}
             </span>
             {encrypted && (
@@ -238,14 +238,14 @@ function FolderStatus({ folderID }: { folderID: string }) {
   const { data, isLoading, error } = useFolderStatus(folderID);
   if (isLoading) {
     return (
-      <div className="border-t border-slate-800/60 pt-2 text-xs text-slate-500">
+      <div className="border-t border-border/60 pt-2 text-xs text-fg-faint">
         <Spinner className="inline-block size-3" />
       </div>
     );
   }
   if (error) {
     return (
-      <div className="flex items-center gap-1.5 border-t border-slate-800/60 pt-2 text-xs text-rose-400">
+      <div className="flex items-center gap-1.5 border-t border-border/60 pt-2 text-xs text-error">
         <AlertCircle className="size-3.5" aria-hidden="true" />
         Status unavailable
       </div>
@@ -255,21 +255,21 @@ function FolderStatus({ folderID }: { folderID: string }) {
   const s = data;
   const errSummary = errorSummary(s);
   return (
-    <div className="space-y-1 border-t border-slate-800/60 pt-2 text-xs">
+    <div className="space-y-1 border-t border-border/60 pt-2 text-xs">
       <div className="flex items-center justify-between gap-3">
         <StateIndicator state={s.state} />
-        <span className="text-slate-400 tabular-nums">
+        <span className="text-fg-subtle tabular-nums">
           {s.globalFiles.toLocaleString()} files · {formatBytes(s.globalBytes)}
         </span>
       </div>
       {s.needTotalItems > 0 && (
-        <div className="flex items-center gap-1.5 text-amber-300">
+        <div className="flex items-center gap-1.5 text-warning">
           <ArrowDown className="size-3.5" aria-hidden="true" />
           {s.needTotalItems.toLocaleString()} pending · {formatBytes(s.needBytes)}
         </div>
       )}
       {errSummary && (
-        <div className="flex items-center gap-1.5 text-rose-400">
+        <div className="flex items-center gap-1.5 text-error">
           <AlertCircle className="size-3.5" aria-hidden="true" />
           {errSummary}
         </div>
@@ -299,20 +299,20 @@ function StateIndicator({ state }: { state: string }) {
   const meta = STATE_META[state] ?? { label: state || 'Unknown', tone: 'idle' as const };
   if (meta.spinning) {
     return (
-      <span className="flex items-center gap-1.5 text-slate-300">
-        <Loader2 className="size-3.5 animate-spin text-sky-400" aria-hidden="true" />
+      <span className="flex items-center gap-1.5 text-fg-muted">
+        <Loader2 className="size-3.5 animate-spin text-primary" aria-hidden="true" />
         {meta.label}
       </span>
     );
   }
   const dotColor =
     meta.tone === 'error'
-      ? 'bg-rose-400'
+      ? 'bg-error'
       : meta.tone === 'active'
-        ? 'bg-sky-400'
-        : 'bg-emerald-400';
+        ? 'bg-primary'
+        : 'bg-success';
   return (
-    <span className="flex items-center gap-1.5 text-slate-300">
+    <span className="flex items-center gap-1.5 text-fg-muted">
       <span className={'inline-block size-2 rounded-full ' + dotColor} aria-hidden="true" />
       {meta.label}
     </span>

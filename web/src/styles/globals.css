@@ -1,5 +1,86 @@
 @import "tailwindcss";
 
+/*
+ * Theme tokens. Light is the default; dark is applied via prefers-color-scheme.
+ * The two-layer structure (CSS vars here, aliased via @theme inline below) is
+ * required for Tailwind v4 — bare @theme inlines values at build time and
+ * breaks runtime overrides.
+ *
+ * To add a manual toggle later: copy the @media block to [data-theme="dark"]
+ * and add a [data-theme="light"] block with the light values, then set
+ * document.documentElement.dataset.theme from a header control.
+ */
+:root {
+  --canvas: #ffffff;
+  --surface: #f8fafc;        /* slate-50 */
+  --surface-2: #f1f5f9;      /* slate-100 */
+  --fg: #0f172a;             /* slate-900 */
+  --fg-muted: #334155;       /* slate-700 */
+  --fg-subtle: #475569;      /* slate-600 */
+  --fg-faint: #64748b;       /* slate-500 */
+  --fg-faintest: #94a3b8;    /* slate-400 */
+  --border: #e2e8f0;         /* slate-200 */
+  --border-strong: #cbd5e1;  /* slate-300 */
+  --primary: #0284c7;        /* sky-600 */
+  --primary-hover: #0369a1;  /* sky-700 */
+  --primary-fg: #ffffff;
+  --error: #be123c;          /* rose-700 */
+  --warning: #b45309;        /* amber-700 */
+  --success: #047857;        /* emerald-700 */
+  --warn: #b45309;           /* amber pill hue */
+  --info: #0284c7;           /* sky pill hue */
+  --danger: #be123c;         /* rose pill hue */
+  --neutral: #64748b;        /* slate pill hue */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: #020617;       /* slate-950 */
+    --surface: #0f172a;      /* slate-900 */
+    --surface-2: #1e293b;    /* slate-800 */
+    --fg: #f1f5f9;           /* slate-100 */
+    --fg-muted: #cbd5e1;     /* slate-300 */
+    --fg-subtle: #94a3b8;    /* slate-400 */
+    --fg-faint: #64748b;     /* slate-500 */
+    --fg-faintest: #475569;  /* slate-600 */
+    --border: #1e293b;       /* slate-800 */
+    --border-strong: #334155;/* slate-700 */
+    --primary: #38bdf8;      /* sky-400 */
+    --primary-hover: #7dd3fc;/* sky-300 */
+    --primary-fg: #ffffff;
+    --error: #fb7185;        /* rose-400 */
+    --warning: #fcd34d;      /* amber-300 */
+    --success: #34d399;      /* emerald-400 */
+    --warn: #fcd34d;
+    --info: #38bdf8;
+    --danger: #fb7185;
+    --neutral: #94a3b8;      /* slate-400 */
+  }
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-fg-faint: var(--fg-faint);
+  --color-fg-faintest: var(--fg-faintest);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-fg: var(--primary-fg);
+  --color-error: var(--error);
+  --color-warning: var(--warning);
+  --color-success: var(--success);
+  --color-warn: var(--warn);
+  --color-info: var(--info);
+  --color-danger: var(--danger);
+  --color-neutral: var(--neutral);
+}
+
 @theme {
   --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
   --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

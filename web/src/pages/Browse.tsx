@@ -90,25 +90,25 @@ export function Browse() {
             <Spinner className="size-5" />
           </div>
         ) : browse.error ? (
-          <p className="flex items-center gap-1.5 px-4 py-6 text-sm text-rose-400">
+          <p className="flex items-center gap-1.5 px-4 py-6 text-sm text-error">
             <AlertCircle className="size-4" aria-hidden="true" />
             {browse.error.message}
           </p>
         ) : browse.data?.length === 0 ? (
-          <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-400">
-            <FolderOpen className="size-8 text-slate-600" aria-hidden="true" />
+          <div className="flex flex-col items-center gap-2 py-10 text-sm text-fg-subtle">
+            <FolderOpen className="size-8 text-fg-faintest" aria-hidden="true" />
             <p>Empty directory.</p>
           </div>
         ) : (
-          <table className="w-full divide-y divide-slate-800 text-sm">
-            <thead className="bg-slate-900/60 text-xs uppercase tracking-wide text-slate-400">
+          <table className="w-full divide-y divide-border text-sm">
+            <thead className="bg-surface/60 text-xs uppercase tracking-wide text-fg-subtle">
               <tr>
                 <SortHeader label="Name" align="left" active={sort.key === 'name'} dir={sort.dir} onClick={() => handleSort('name')} />
                 <SortHeader label="Size" align="right" active={sort.key === 'size'} dir={sort.dir} onClick={() => handleSort('size')} />
                 <SortHeader label="Modified" align="right" active={sort.key === 'modified'} dir={sort.dir} onClick={() => handleSort('modified')} />
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-border/60">
               {sorted.map((entry) => {
                 const childPath = `${prefix}${entry.name}`;
                 const target =
@@ -116,13 +116,13 @@ export function Browse() {
                     ? `/folders/${id}/browse/${encodeChildPath(childPath)}/`
                     : `/folders/${id}/file/${encodeChildPath(childPath)}`;
                 return (
-                  <tr key={entry.name} className="hover:bg-slate-800/50">
+                  <tr key={entry.name} className="hover:bg-surface-2/50">
                     <td className="px-4 py-2">
-                      <Link to={target} className="flex items-center gap-1.5 text-sky-400 hover:underline">
+                      <Link to={target} className="flex items-center gap-1.5 text-primary hover:underline">
                         {entry.type === 'dir' ? (
                           <Folder className="size-4 shrink-0" aria-hidden="true" />
                         ) : (
-                          <FileText className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                          <FileText className="size-4 shrink-0 text-fg-subtle" aria-hidden="true" />
                         )}
                         <span>
                           {entry.name}
@@ -130,10 +130,10 @@ export function Browse() {
                         </span>
                       </Link>
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums text-slate-300">
+                    <td className="px-4 py-2 text-right tabular-nums text-fg-muted">
                       {entry.type === 'file' ? formatBytes(entry.size) : ''}
                     </td>
-                    <td className="px-4 py-2 text-right tabular-nums text-slate-400">
+                    <td className="px-4 py-2 text-right tabular-nums text-fg-subtle">
                       {formatDate(entry.modified)}
                     </td>
                   </tr>
@@ -165,7 +165,7 @@ function SortHeader({
       <button
         type="button"
         onClick={onClick}
-        className={`inline-flex items-center gap-1 hover:text-slate-200 ${active ? 'text-slate-200' : ''}`}
+        className={`inline-flex items-center gap-1 hover:text-fg ${active ? 'text-fg' : ''}`}
       >
         {label}
         {active && (dir === 'asc' ? (
@@ -202,16 +202,16 @@ function Breadcrumbs({
     })),
   ];
   return (
-    <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
-      <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-      <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
+    <nav className="flex flex-wrap items-center gap-1 text-sm text-fg-subtle">
+      <Link to="/folders" className="hover:text-fg">All folders</Link>
+      <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />
       {crumbs.map((c, i) => (
         <Fragment key={c.to}>
-          {i > 0 && <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />}
+          {i > 0 && <ChevronRight className="size-3.5 text-fg-faintest" aria-hidden="true" />}
           {i === crumbs.length - 1 ? (
-            <span className="text-slate-200" title={c.title}>{c.label}</span>
+            <span className="text-fg" title={c.title}>{c.label}</span>
           ) : (
-            <Link to={c.to} className="hover:text-slate-200" title={c.title}>{c.label}</Link>
+            <Link to={c.to} className="hover:text-fg" title={c.title}>{c.label}</Link>
           )}
         </Fragment>
       ))}
