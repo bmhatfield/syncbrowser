@@ -152,13 +152,19 @@ The backend's `--dev` flag enables CORS specifically for
 ### Common targets
 
 ```sh
-make web         # build the UI bundle into web/dist/ (embedded by go build)
-make build       # web + go build → bin/syncbrowser
-make lint        # golangci-lint v2 (Go)
-make lint-web    # eslint v9 + typescript-eslint (frontend)
-make fmt         # gofmt + goimports via golangci-lint
-make tidy        # go mod tidy
-make clean       # remove bin/ and web/dist/
+make build         # full build: UI deps + UI bundle + Go binary
+make web           # full UI build (npm ci + vite build) — fresh checkout / after lockfile change
+make ui            # incremental UI build only (faster, assumes deps installed)
+make go            # build the Go binary only (assumes web/dist is populated)
+make dev-web       # Vite dev server on :5173
+make dev-go        # Go server on :8385 with --dev CORS
+make lint          # backend: golangci-lint v2
+make lint-web      # frontend: ESLint + typescript-eslint
+make typecheck-web # frontend: tsc -b --noEmit
+make fix-web       # frontend: eslint --fix
+make fmt           # gofmt + goimports via golangci-lint
+make tidy          # go mod tidy
+make clean         # remove bin/ and web/dist/ (recreates stub for embed)
 ```
 
 `web/dist/` ships with a stub `index.html` so `go run ./cmd/syncbrowser`

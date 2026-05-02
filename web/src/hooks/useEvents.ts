@@ -63,6 +63,7 @@ export function useEvents(enabled: boolean): void {
                 if (folder) {
                   void qc.invalidateQueries({ queryKey: ['browse', folder] });
                   void qc.invalidateQueries({ queryKey: ['need', folder] });
+                  void qc.invalidateQueries({ queryKey: ['folderStatus', folder] });
                   if (item) void qc.invalidateQueries({ queryKey: ['file', folder, item] });
                 }
                 break;
@@ -70,10 +71,14 @@ export function useEvents(enabled: boolean): void {
                 if (folder) {
                   void qc.invalidateQueries({ queryKey: ['remoteNeed', folder] });
                   void qc.invalidateQueries({ queryKey: ['browse', folder] });
+                  void qc.invalidateQueries({ queryKey: ['folderStatus', folder] });
                 }
                 break;
               case 'FolderSummary':
                 void qc.invalidateQueries({ queryKey: ['folders'] });
+                if (folder) {
+                  void qc.invalidateQueries({ queryKey: ['folderStatus', folder] });
+                }
                 break;
               default:
                 break;

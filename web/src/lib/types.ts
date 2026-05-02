@@ -6,10 +6,23 @@ export interface STDevice {
   name: string;
   addresses?: string[];
   paused?: boolean;
+  untrusted?: boolean;
 }
 
 export interface STFolderDevice {
   deviceID: string;
+  encryptionPassword?: string;
+}
+
+export interface STVersioning {
+  type: string;
+  // Other versioning fields (params, cleanupIntervalS, ...) exist but
+  // we only display `type`.
+}
+
+export interface STMinDiskFree {
+  value: number;
+  unit: string;
 }
 
 export interface STFolder {
@@ -19,11 +32,29 @@ export interface STFolder {
   type: string;
   paused?: boolean;
   devices: STFolderDevice[];
+  versioning?: STVersioning;
+  fsWatcherEnabled?: boolean;
+  rescanIntervalS?: number;
+  minDiskFree?: STMinDiskFree;
 }
 
 export interface STConfig {
   folders: STFolder[];
   devices: STDevice[];
+}
+
+// /rest/db/status?folder=<id> — narrow to the fields the UI reads.
+export interface STFolderStatus {
+  state: string;
+  error: string;
+  errors: number;
+  pullErrors: number;
+  watchError?: string;
+  globalFiles: number;
+  globalBytes: number;
+  needTotalItems: number;
+  needBytes: number;
+  inSyncBytes: number;
 }
 
 // /rest/db/browse returns either a recursive map (object → object | name[])

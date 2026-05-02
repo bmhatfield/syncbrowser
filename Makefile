@@ -1,12 +1,22 @@
-.PHONY: web build dev-go dev-web tidy lint lint-web fmt clean
+.PHONY: web web-deps ui go build dev-go dev-web tidy lint lint-web typecheck-web fmt-web fix-web fmt clean
 
 BIN := bin/syncbrowser
 
-web:
-	cd web && npm ci && npm run build
+# Full UI build with clean dep install. Use on fresh clones / CI.
+web: web-deps ui
 
-build: web
+web-deps:
+	cd web && npm ci
+
+# Incremental UI build (assumes web/node_modules is populated).
+ui:
+	cd web && npm run build
+
+# Just the Go binary; assumes web/dist is already populated.
+go:
 	go build -o $(BIN) ./cmd/syncbrowser
+
+build: web go
 
 dev-go:
 	go run ./cmd/syncbrowser --dev
@@ -22,6 +32,12 @@ lint:
 
 lint-web:
 	cd web && npm run lint
+
+typecheck-web:
+	cd web && npm run typecheck
+
+fix-web:
+	cd web && npm run lint:fix
 
 fmt:
 	golangci-lint fmt ./...

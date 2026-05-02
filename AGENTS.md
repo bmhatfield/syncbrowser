@@ -129,49 +129,92 @@ If you ever need to encrypt the API key in the cookie, that's a real
 change — discuss with the user first; the current threat model assumes
 the OS protects the local cookie store.
 
-## Testing
+## Running commands (agent-specific)
 
-### Quick checks (always run before considering a change done)
+This section is written for AI agents whose Bash invocations don't share
+state. The patterns below are the ones that actually work without
+fighting the sandbox or losing the working directory.
+
+### The two rules
+
+1. **Every Bash call starts at the repo root.** `cd web` in one call does
+   not carry to the next. Either chain with `&&` inside a single call, or
+   use a `make` target (which handles `cd` internally), or use absolute
+   paths.
+
+2. **Go and `make` commands need `dangerouslyDisableSandbox: true`.** The
+   Go toolchain writes a telemetry token under `~/Library/Application
+   Support/go/`; without the bypass you'll see `Operation not permitted`
+   or `error acquiring upload taken: statting token file` and the command
+   will fail (or partially succeed and lie). `npm` commands generally run
+   inside the sandbox; flip the flag if you see network/cache write
+   failures during `npm install`.
+
+### Canonical commands
+
+Prefer `make` targets — they handle the `cd web` plumbing and read the
+same way from any working directory.
+
+| Goal | Command (run from repo root) | Sandbox |
+|---|---|---|
+| Backend lint | `make lint` | bypass |
+| Frontend lint | `make lint-web` | inside |
+| Frontend typecheck | `make typecheck-web` | inside |
+| Frontend lint with auto-fix | `make fix-web` | inside |
+| Format Go | `make fmt` | bypass |
+| Build UI (incremental, assumes deps installed) | `make ui` | inside |
+| Install UI deps + build (fresh checkout / after lockfile change) | `make web` | inside |
+| Build Go binary only (assumes UI built) | `make go` | bypass |
+| Build everything | `make build` | bypass |
+| Tidy Go modules | `make tidy` | bypass |
+| Clean outputs | `make clean` | inside |
+| Dev: Vite HMR (terminal A) | `make dev-web` | inside |
+| Dev: Go backend (terminal B) | `make dev-go` | bypass |
+
+For the typical edit-rebuild loop after touching frontend code, the fast
+path is `make ui && make go` (no `npm ci`).
+
+If you must run something not in the table, prefer absolute paths in a
+single chained call:
 
 ```bash
-make lint            # Go: golangci-lint v2 with fast linters
-make lint-web        # TS: ESLint flat config + typescript-eslint
-go build ./...       # Backend compiles
-cd web && npm run typecheck && npm run build   # Frontend typechecks + bundles
+cd /Users/<you>/Documents/dev/syncbrowser/web && npm run typecheck
 ```
+
+### Quick checks (run before declaring a change done)
+
+```bash
+make lint            # Go
+make lint-web        # TS
+make typecheck-web   # TS types
+make ui              # frontend bundles
+make go              # backend compiles + embeds
+```
+
+If any of those fail, fix the failure before continuing — don't stack
+more changes on a broken tree.
 
 ### Smoke test the binary (no live Syncthing required)
 
+Use this to verify routing, auth, CSRF, and SPA fallback in one shot.
+Start the binary in the background, sleep briefly, run curls, kill it.
+The "exited with code 144" task notification on `pkill` is normal
+(SIGTERM 128+15+1) — not an error.
+
 ```bash
 ./bin/syncbrowser --listen 127.0.0.1:8395 --upstream http://127.0.0.1:1 --log-level debug &
-curl -i http://127.0.0.1:8395/api/auth/status                  # → 200, {"authenticated":false}
-curl -i -X POST -H 'X-Requested-With: syncbrowser' \
-     -H 'Content-Type: application/json' -d '{"apiKey":"x"}' \
-     http://127.0.0.1:8395/api/auth/login                       # → 401 (upstream unreachable, treated as bad key)
-curl -i http://127.0.0.1:8395/api/syncthing/system/config       # → 401 (no cookie)
-curl -i -X POST http://127.0.0.1:8395/api/auth/login            # → 403 (missing X-Requested-With)
-curl -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8395/folders/anything  # → 200 (SPA fallback)
+sleep 1
+curl -s http://127.0.0.1:8395/api/auth/status                                     # → {"authenticated":false}
+curl -s -b 'syncbrowser_key=fake' http://127.0.0.1:8395/api/auth/status           # → {"authenticated":true}
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8395/api/syncthing/system/config              # → 401
+curl -s -o /dev/null -w '%{http_code}\n' -b 'syncbrowser_key=fake' http://127.0.0.1:8395/api/syncthing/system/config  # → 502
+curl -s -X POST -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8395/api/auth/login                   # → 403 (CSRF)
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8395/folders/anything                          # → 200 (SPA fallback)
 pkill -f bin/syncbrowser
 ```
 
-### End-to-end (real Syncthing)
-
-```bash
-brew install syncthing && syncthing &
-# In Syncthing UI (http://localhost:8384), Settings → GUI → copy API key.
-# Add a folder; pair a peer to test /db/remoteneed.
-make build && ./bin/syncbrowser
-# Open http://127.0.0.1:8385 → /login → paste key.
-```
-
-Verify:
-1. Login sets `Set-Cookie: syncbrowser_key=...; HttpOnly; SameSite=Strict; Path=/api`.
-2. `/folders` lists folders → drill into one → file detail → needs page.
-3. Toggle "Live updates" header checkbox; `touch <synced>/test.txt` (or
-   click Rescan in Syncthing UI). Within 1–2s, the browse view shows the
-   new file. DevTools → Network shows long-poll requests to
-   `/api/syncthing/events` returning at most every 60s.
-4. Click "Sign out" → cookie cleared → redirected to `/login`.
+(If you started via `Bash(run_in_background: true)` you'll get a
+completion notification when `pkill` lands. Don't poll for it.)
 
 ### Dev workflow (two processes)
 
@@ -183,6 +226,43 @@ make dev-go     # terminal B: Go on :8385 with --dev (CORS for :5173)
 
 Vite proxies `/api/*` to `:8385`. The backend's `--dev` flag enables CORS
 specifically for `http://localhost:5173`. Don't ship `--dev` in production.
+
+### End-to-end (real Syncthing required, user-driven)
+
+```bash
+brew install syncthing && syncthing &
+# In Syncthing UI (http://localhost:8384), Settings → GUI → copy API key.
+# Add a folder; pair a peer to test /db/remoteneed.
+make build && ./bin/syncbrowser
+# Open http://127.0.0.1:8385 → /login → paste key.
+```
+
+Verify:
+1. Login sets `Set-Cookie: syncbrowser_key=...; HttpOnly; SameSite=Strict; Path=/api`.
+2. `/folders` lists folders with state badge, file count, peer pills.
+3. Drill into a folder → browse → file detail → needs page.
+4. Toggle "Live updates" header checkbox; `touch <synced>/test.txt` (or
+   click Rescan in Syncthing UI). Within 1–2s, the browse view shows the
+   new file. DevTools → Network shows long-poll requests to
+   `/api/syncthing/events` returning at most every 60s.
+5. Click "Sign out" → cookie cleared → redirected to `/login`.
+
+UI feature work cannot be self-verified by the agent. Type/lint/build
+checks confirm code correctness, not feature correctness — if you can't
+run the full e2e, say so explicitly rather than claiming success.
+
+### Common mistakes (i.e. things I keep doing wrong)
+
+- Running `npm` from the repo root. There's no `package.json` there.
+  Always go through a `make` target or `cd web && …` in the same call.
+- Running `go build ./...` without `dangerouslyDisableSandbox: true`. It
+  silently fails on the telemetry token write. Always pass the flag.
+- Chaining `cd web && X && cd .. && go build`. Easy to typo and even when
+  correct it's noisy. Use `make ui && make go` instead.
+- Assuming `cd` from a previous Bash call persists. It doesn't.
+- Running `make web` (which does `npm ci`) on every iteration. Slow.
+  Use `make ui` for incremental builds; `make web` only when
+  `package-lock.json` changed.
 
 ## Gotchas
 

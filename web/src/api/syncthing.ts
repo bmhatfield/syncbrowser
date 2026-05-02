@@ -1,8 +1,12 @@
 import { api, syncthingURL } from './client';
-import type { STConfig, STFileInfo, STNeed } from '../lib/types';
+import type { STConfig, STFileInfo, STFolderStatus, STNeed } from '../lib/types';
 
 export function getConfig(): Promise<STConfig> {
   return api<STConfig>(syncthingURL('/system/config'));
+}
+
+export function folderStatus(folder: string): Promise<STFolderStatus> {
+  return api<STFolderStatus>(syncthingURL('/db/status', { folder }));
 }
 
 // /db/browse?folder=&prefix=&levels=1 — the response shape varies across
