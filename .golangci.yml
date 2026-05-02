@@ -1,0 +1,80 @@
+version: "2"
+
+run:
+  timeout: 3m
+  go: "1.26"
+
+linters:
+  default: standard
+  # Skipping notably slow / SSA-based linters (bodyclose, contextcheck,
+  # unparam, nilness, rowserrcheck, sqlclosecheck, dupl, wsl).
+  enable:
+    - errorlint     # detects unwrapped errors / wrong errors.Is/As usage
+    - gocritic      # broad set of fast diagnostic + style checks
+    - gocyclo       # cyclomatic complexity
+    - goconst       # repeated strings → consts
+    - misspell      # typo detection
+    - nakedret      # naked returns in longer funcs
+    - nilerr        # returning nil error after a non-nil err
+    - nolintlint    # validates nolint directives
+    - prealloc      # slice prealloc opportunities
+    - revive        # fast golint replacement
+    - unconvert     # unnecessary type conversions
+    - whitespace    # trailing/leading blank lines
+  settings:
+    gocyclo:
+      min-complexity: 15
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+        - style
+      disabled-checks:
+        - ifElseChain
+        - hugeParam
+    revive:
+      rules:
+        - name: blank-imports
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: dot-imports
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: superfluous-else
+        - name: time-naming
+        - name: unexported-return
+        - name: unreachable-code
+        - name: unused-parameter
+          disabled: true
+        - name: var-declaration
+        - name: var-naming
+  exclusions:
+    generated: lax
+    presets:
+      - common-false-positives
+      - legacy
+    paths:
+      - web/dist
+      - third_party$
+      - builtin$
+      - examples$
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/bhatfield/syncbrowser
+
+issues:
+  max-issues-per-linter: 50
+  max-same-issues: 5
