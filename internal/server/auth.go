@@ -11,8 +11,6 @@ import (
 	"github.com/bhatfield/syncbrowser/internal/config"
 )
 
-const cookieName = "syncbrowser_key"
-
 type authHandlers struct {
 	cfg    config.Config
 	logger *slog.Logger
@@ -48,12 +46,12 @@ func (a *authHandlers) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.SetCookie(w, a.makeCookie(r, body.APIKey))
+	http.SetCookie(w, newCookie(r, body.APIKey, a.cfg.CookieTTL))
 	writeJSON(w, http.StatusOK, map[string]bool{"ok": true})
 }
 
 func (a *authHandlers) logout(w http.ResponseWriter, r *http.Request) {
-	c := a.makeCookie(r, "")
+	c := newCookie(r, "", 0)
 	c.MaxAge = -1
 	c.Expires = time.Unix(0, 0)
 	http.SetCookie(w, c)
@@ -82,29 +80,6 @@ func (a *authHandlers) validateUpstream(ctx context.Context, key string) error {
 		return errors.New("upstream rejected key: " + resp.Status)
 	}
 	return nil
-}
-
-func (a *authHandlers) makeCookie(r *http.Request, value string) *http.Cookie {
-	c := &http.Cookie{
-		Name:     cookieName,
-		Value:    value,
-		Path:     "/api",
-		HttpOnly: true,
-		SameSite: http.SameSiteStrictMode,
-		Secure:   r.TLS != nil,
-	}
-	if a.cfg.CookieTTL > 0 && value != "" {
-		c.MaxAge = int(a.cfg.CookieTTL.Seconds())
-	}
-	return c
-}
-
-func apiKeyFromCookie(r *http.Request) string {
-	c, err := r.Cookie(cookieName)
-	if err != nil {
-		return ""
-	}
-	return c.Value
 }
 
 func writeJSON(w http.ResponseWriter, status int, body any) {

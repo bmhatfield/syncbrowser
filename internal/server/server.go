@@ -57,7 +57,7 @@ func registerRoutes(mux *http.ServeMux, cfg config.Config, logger *slog.Logger) 
 	mux.HandleFunc("GET /api/auth/status", auth.status)
 
 	proxy := newProxy(cfg, logger)
-	mux.Handle("/api/syncthing/", requireAuth(proxy))
+	mux.Handle(proxyPrefix+"/", requireAuth(proxy))
 
 	mux.Handle("/", staticHandler())
 }

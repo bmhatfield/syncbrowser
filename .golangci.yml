@@ -62,6 +62,7 @@ linters:
       - legacy
     paths:
       - web/dist
+      - web/node_modules
       - third_party$
       - builtin$
       - examples$
