@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(make ui *)",
+      "Bash(make typecheck-web *)",
+      "Bash(make lint-web *)"
+    ]
+  }
+}
