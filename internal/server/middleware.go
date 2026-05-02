@@ -5,21 +5,10 @@ import (
 	"net/http"
 	"strings"
 	"time"
-
-	"github.com/bhatfield/syncbrowser/internal/config"
 )
 
 const csrfHeader = "X-Requested-With"
 const csrfValue = "syncbrowser"
-
-func withMiddleware(h http.Handler, cfg config.Config, logger *slog.Logger) http.Handler {
-	h = csrfGuard(h)
-	if cfg.Dev {
-		h = devCORS(h)
-	}
-	h = requestLogger(h, logger)
-	return h
-}
 
 // csrfGuard requires an X-Requested-With header on /api/* requests using
 // state-changing methods. SameSite=Strict already blocks cross-site cookie
@@ -78,18 +67,22 @@ func devCORS(next http.Handler) http.Handler {
 	})
 }
 
-func requestLogger(next http.Handler, logger *slog.Logger) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-		sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
-		next.ServeHTTP(sw, r)
-		logger.Debug("http",
-			"method", r.Method,
-			"path", r.URL.Path,
-			"status", sw.status,
-			"dur", time.Since(start),
-		)
-	})
+// requestLogger returns a middleware that logs each request at debug level.
+// Constructor-shaped so it composes with chi's r.Use.
+func requestLogger(logger *slog.Logger) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			start := time.Now()
+			sw := &statusWriter{ResponseWriter: w, status: http.StatusOK}
+			next.ServeHTTP(sw, r)
+			logger.Debug("http",
+				"method", r.Method,
+				"path", r.URL.Path,
+				"status", sw.status,
+				"dur", time.Since(start),
+			)
+		})
+	}
 }
 
 type statusWriter struct {

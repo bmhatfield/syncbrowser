@@ -4,8 +4,8 @@ A small read-only PWA file browser for a local [Syncthing](https://syncthing.net
 instance. Paste your API key once, then browse folders, drill into files,
 and inspect what each peer still needs to receive.
 
-- **Backend:** Go (`net/http` + `httputil.ReverseProxy`), `urfave/cli/v3`,
-  `embed.FS`.
+- **Backend:** Go (`net/http` + `httputil.ReverseProxy` + `go-chi/chi/v5`),
+  `urfave/cli/v3`, `embed.FS`.
 - **Frontend:** React 19 + TypeScript, Vite, TanStack Query, React Router,
   Tailwind v4, `vite-plugin-pwa`.
 

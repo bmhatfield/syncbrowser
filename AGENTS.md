@@ -39,7 +39,7 @@ Don't undo these. They're what keeps the project small.
 
 | Decision | Why |
 |---|---|
-| Go stdlib `net/http` + `httputil.ReverseProxy` | No framework needed; stdlib covers it. |
+| Go stdlib `net/http` + `httputil.ReverseProxy` + `go-chi/chi/v5` | Stdlib covers most needs; chi adds clean route grouping (`r.Group`/`r.Use`) and `middleware.Recoverer` for free panic safety. |
 | `urfave/cli/v3` | User asked for it. Note v3 API: `Action func(ctx, *cli.Command) error`. |
 | API key stored **directly** in the cookie (no server-side session map) | Single-user local tool. The key already lives on disk in Syncthing's config; in-process session stores buy nothing. |
 | Cookie: `HttpOnly`, `SameSite=Strict`, `Path=/api`, `Secure` only over TLS | Minimum surface; `Path=/api` keeps the cookie off static-asset requests. |
@@ -113,9 +113,15 @@ unstyled-by-default, taking `className` like the existing ones.
 3. Use it in the relevant `internal/server/*.go` file.
 
 ### Add Go middleware
-Compose it in `withMiddleware` in `internal/server/middleware.go`. Order
-matters: outermost should be logging; CSRF runs before auth gate runs
-before the proxy.
+Add it via `r.Use(...)` inside `newRouter` in `internal/server/server.go`.
+Order matters: outermost runs first. Current order:
+`requestLogger` → `Recoverer` → (optional `devCORS`) → `csrfGuard`.
+`requireAuth` is applied per-group on the `/api/syncthing/*` mount.
+
+Middleware should match the constructor pattern
+`func(...) func(http.Handler) http.Handler` (see `requestLogger`) or, if
+parameterless, `func(http.Handler) http.Handler` (see `csrfGuard`,
+`devCORS`, `requireAuth`).
 
 ### Touch the cookie format
 Keep the existing semantics (`HttpOnly`, `SameSite=Strict`, `Path=/api`).
