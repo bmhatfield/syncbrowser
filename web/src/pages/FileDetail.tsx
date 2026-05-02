@@ -1,4 +1,12 @@
 import { Link, useParams } from 'react-router-dom';
+import {
+  AlertCircle,
+  ChevronRight,
+  Globe,
+  HardDrive,
+  MinusCircle,
+  Wifi,
+} from 'lucide-react';
 
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
@@ -21,32 +29,38 @@ export function FileDetail() {
 
   return (
     <div className="space-y-4">
-      <nav className="text-sm text-slate-400">
+      <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
         <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-        <span> › </span>
+        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
         <Link to={`/folders/${id}/browse/`} className="hover:text-slate-200">{folderID}</Link>
-        <span> › </span>
+        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
         <span className="text-slate-200" title={filePath}>{filePath || '(root)'}</span>
       </nav>
 
       {isLoading ? (
         <div className="flex justify-center py-10">
-          <Spinner className="h-5 w-5" />
+          <Spinner className="size-5" />
         </div>
       ) : error ? (
-        <p className="text-rose-400">{error.message}</p>
+        <p className="flex items-center gap-1.5 text-rose-400">
+          <AlertCircle className="size-4" aria-hidden="true" />
+          {error.message}
+        </p>
       ) : data ? (
         <div className="grid gap-4 md:grid-cols-2">
-          <Section title="Global">
+          <Section title="Global" icon={<Globe className="size-4 text-slate-400" aria-hidden="true" />}>
             <Info data={data.global} deviceNames={deviceNames} />
           </Section>
-          <Section title="Local">
+          <Section title="Local" icon={<HardDrive className="size-4 text-slate-400" aria-hidden="true" />}>
             <Info data={data.local} deviceNames={deviceNames} />
           </Section>
           {data.availability && data.availability.length > 0 && (
             <Card className="md:col-span-2">
               <CardHeader>
-                <h3 className="text-sm font-semibold text-slate-200">Availability</h3>
+                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+                  <Wifi className="size-4 text-slate-400" aria-hidden="true" />
+                  Availability
+                </h3>
               </CardHeader>
               <CardBody>
                 <ul className="space-y-1 text-sm">
@@ -70,11 +84,22 @@ export function FileDetail() {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <Card>
       <CardHeader>
-        <h3 className="text-sm font-semibold text-slate-200">{title}</h3>
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-slate-200">
+          {icon}
+          {title}
+        </h3>
       </CardHeader>
       <CardBody>{children}</CardBody>
     </Card>
@@ -88,7 +113,14 @@ function Info({
   data: STFileEntry | undefined;
   deviceNames: Map<string, string>;
 }) {
-  if (!data) return <p className="text-sm text-slate-500">Not present.</p>;
+  if (!data) {
+    return (
+      <p className="flex items-center gap-1.5 text-sm text-slate-500">
+        <MinusCircle className="size-4 text-slate-600" aria-hidden="true" />
+        Not present.
+      </p>
+    );
+  }
   return (
     <dl className="grid grid-cols-[max-content_1fr] gap-x-4 gap-y-1 text-sm">
       <Detail label="Size" value={formatBytes(data.size)} />

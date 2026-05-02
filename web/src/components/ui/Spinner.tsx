@@ -1,12 +1,11 @@
+import { Loader2 } from 'lucide-react';
+
 export function Spinner({ className = '' }: { className?: string }) {
   return (
-    <div
+    <Loader2
       role="status"
       aria-label="Loading"
-      className={
-        'inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-600 border-t-sky-400 ' +
-        className
-      }
+      className={'size-4 animate-spin text-sky-400 ' + className}
     />
   );
 }

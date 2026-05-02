@@ -1,5 +1,12 @@
 import { Fragment } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import {
+  AlertCircle,
+  ChevronRight,
+  FileText,
+  Folder,
+  FolderOpen,
+} from 'lucide-react';
 
 import { Card } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
@@ -34,14 +41,18 @@ export function Browse() {
       <Card className="overflow-hidden">
         {browse.isLoading ? (
           <div className="flex items-center justify-center py-10">
-            <Spinner className="h-5 w-5" />
+            <Spinner className="size-5" />
           </div>
         ) : browse.error ? (
-          <p className="px-4 py-6 text-sm text-rose-400">
+          <p className="flex items-center gap-1.5 px-4 py-6 text-sm text-rose-400">
+            <AlertCircle className="size-4" aria-hidden="true" />
             {browse.error.message}
           </p>
         ) : browse.data?.length === 0 ? (
-          <p className="px-4 py-6 text-sm text-slate-400">Empty directory.</p>
+          <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-400">
+            <FolderOpen className="size-8 text-slate-600" aria-hidden="true" />
+            <p>Empty directory.</p>
+          </div>
         ) : (
           <table className="w-full divide-y divide-slate-800 text-sm">
             <thead className="bg-slate-900/60 text-xs uppercase tracking-wide text-slate-400">
@@ -61,10 +72,16 @@ export function Browse() {
                 return (
                   <tr key={entry.name} className="hover:bg-slate-800/50">
                     <td className="px-4 py-2">
-                      <Link to={target} className="text-sky-400 hover:underline">
-                        <span aria-hidden="true">{entry.type === 'dir' ? '📁 ' : '📄 '}</span>
-                        {entry.name}
-                        {entry.type === 'dir' ? '/' : ''}
+                      <Link to={target} className="flex items-center gap-1.5 text-sky-400 hover:underline">
+                        {entry.type === 'dir' ? (
+                          <Folder className="size-4 shrink-0" aria-hidden="true" />
+                        ) : (
+                          <FileText className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
+                        )}
+                        <span>
+                          {entry.name}
+                          {entry.type === 'dir' ? '/' : ''}
+                        </span>
                       </Link>
                     </td>
                     <td className="px-4 py-2 text-right tabular-nums text-slate-300">
@@ -110,10 +127,10 @@ function Breadcrumbs({
   return (
     <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
       <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-      <span>›</span>
+      <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
       {crumbs.map((c, i) => (
         <Fragment key={c.to}>
-          {i > 0 && <span>/</span>}
+          {i > 0 && <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />}
           {i === crumbs.length - 1 ? (
             <span className="text-slate-200" title={c.title}>{c.label}</span>
           ) : (

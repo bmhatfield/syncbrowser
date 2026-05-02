@@ -1,5 +1,12 @@
 import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import {
+  AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  Download,
+  Upload,
+} from 'lucide-react';
 
 import { Card } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
@@ -31,18 +38,24 @@ export function Needs() {
 
   return (
     <div className="space-y-4">
-      <nav className="text-sm text-slate-400">
+      <nav className="flex flex-wrap items-center gap-1 text-sm text-slate-400">
         <Link to="/folders" className="hover:text-slate-200">All folders</Link>
-        <span> › </span>
+        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
         <Link to={`/folders/${id}/browse/`} className="hover:text-slate-200">{folder?.label ?? folderID}</Link>
-        <span> › </span>
+        <ChevronRight className="size-3.5 text-slate-600" aria-hidden="true" />
         <span className="text-slate-200">Needs</span>
       </nav>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="inline-flex rounded-md border border-slate-800 bg-slate-900/60 p-1 text-sm">
-          <TabButton active={tab === 'local'} onClick={() => setTab('local')}>Local needs</TabButton>
-          <TabButton active={tab === 'remote'} onClick={() => setTab('remote')}>Remote needs</TabButton>
+          <TabButton active={tab === 'local'} onClick={() => setTab('local')}>
+            <Download className="size-3.5" aria-hidden="true" />
+            Local needs
+          </TabButton>
+          <TabButton active={tab === 'remote'} onClick={() => setTab('remote')}>
+            <Upload className="size-3.5" aria-hidden="true" />
+            Remote needs
+          </TabButton>
         </div>
         {tab === 'remote' && (
           <select
@@ -73,7 +86,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
       type="button"
       onClick={onClick}
       className={
-        'rounded px-3 py-1 ' +
+        'flex items-center gap-1.5 rounded px-3 py-1 ' +
         (active ? 'bg-slate-800 text-slate-100' : 'text-slate-400 hover:text-slate-200')
       }
     >
@@ -103,10 +116,15 @@ function NeedTable({
   query: { data?: STNeed; isLoading: boolean; error: unknown };
 }) {
   if (query.isLoading) {
-    return <div className="flex justify-center py-10"><Spinner className="h-5 w-5" /></div>;
+    return <div className="flex justify-center py-10"><Spinner className="size-5" /></div>;
   }
   if (query.error) {
-    return <p className="text-rose-400">{(query.error as Error).message}</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-10 text-sm text-rose-400">
+        <AlertCircle className="size-8" aria-hidden="true" />
+        <p>{(query.error as Error).message}</p>
+      </div>
+    );
   }
   const data = query.data;
   if (!data) return null;
@@ -116,7 +134,12 @@ function NeedTable({
     ...(data.rest ?? []).map((f) => ({ ...f, group: 'pending' as const })),
   ];
   if (all.length === 0) {
-    return <p className="text-sm text-slate-400">{label}: nothing pending. Fully in sync.</p>;
+    return (
+      <div className="flex flex-col items-center gap-2 py-10 text-sm text-slate-400">
+        <CheckCircle2 className="size-8 text-emerald-400" aria-hidden="true" />
+        <p>{label}: nothing pending. Fully in sync.</p>
+      </div>
+    );
   }
   return (
     <Card className="overflow-hidden">

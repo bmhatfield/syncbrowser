@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { Activity, FolderTree, LogOut } from 'lucide-react';
 
 import { useAuthStatus, useLogout } from '../hooks/useAuth';
 import { eventsEnabled, setEventsEnabled, useEvents } from '../hooks/useEvents';
@@ -23,7 +24,7 @@ export function Layout() {
   if (status.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <Spinner className="h-6 w-6" />
+        <Spinner className="size-6" />
       </div>
     );
   }
@@ -33,7 +34,11 @@ export function Layout() {
     <div className="flex min-h-screen flex-col">
       <header className="border-b border-slate-800 bg-slate-950/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center gap-4 px-4 py-3">
-          <Link to="/folders" className="text-lg font-semibold text-sky-400">
+          <Link
+            to="/folders"
+            className="flex items-center gap-2 text-lg font-semibold text-sky-400"
+          >
+            <FolderTree className="size-5" aria-hidden="true" />
             syncbrowser
           </Link>
           <nav className="flex items-center gap-1 text-sm">
@@ -50,6 +55,10 @@ export function Layout() {
                   setEventsEnabled(e.target.checked);
                 }}
               />
+              <Activity
+                className={'size-3.5 ' + (liveOn ? 'text-sky-400' : 'text-slate-600')}
+                aria-hidden="true"
+              />
               Live updates
             </label>
             <Button
@@ -60,6 +69,7 @@ export function Layout() {
                 });
               }}
             >
+              <LogOut className="size-4" aria-hidden="true" />
               Sign out
             </Button>
           </div>

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AlertCircle, KeyRound, Loader2, LogIn } from 'lucide-react';
 
 import { Button } from '../components/ui/Button';
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
@@ -35,7 +36,10 @@ export function Login() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <h1 className="text-lg font-semibold text-sky-400">syncbrowser</h1>
+          <div className="flex items-center gap-2">
+            <KeyRound className="size-5 text-sky-400" aria-hidden="true" />
+            <h1 className="text-lg font-semibold text-sky-400">syncbrowser</h1>
+          </div>
           <p className="mt-1 text-sm text-slate-400">
             Paste your Syncthing API key to begin.
           </p>
@@ -58,10 +62,23 @@ export function Login() {
               />
             </label>
             {error && (
-              <p className="text-sm text-rose-400">{error}</p>
+              <p className="flex items-center gap-1.5 text-sm text-rose-400">
+                <AlertCircle className="size-4" aria-hidden="true" />
+                {error}
+              </p>
             )}
             <Button type="submit" disabled={login.isPending || !apiKey.trim()}>
-              {login.isPending ? 'Verifying…' : 'Sign in'}
+              {login.isPending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                  Verifying…
+                </>
+              ) : (
+                <>
+                  <LogIn className="size-4" aria-hidden="true" />
+                  Sign in
+                </>
+              )}
             </Button>
             <p className="text-xs text-slate-500">
               The key is stored in an HttpOnly cookie scoped to <code>/api</code> and

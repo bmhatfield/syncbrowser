@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { AlertCircle, ArrowRight, Folder, FolderX, Users } from 'lucide-react';
 
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
@@ -11,12 +12,17 @@ export function Folders() {
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
-        <Spinner className="h-6 w-6" />
+        <Spinner className="size-6" />
       </div>
     );
   }
   if (error) {
-    return <p className="text-rose-400">Failed to load folders: {error.message}</p>;
+    return (
+      <p className="flex items-center gap-1.5 text-rose-400">
+        <AlertCircle className="size-4" aria-hidden="true" />
+        Failed to load folders: {error.message}
+      </p>
+    );
   }
   if (!data) return null;
 
@@ -26,7 +32,10 @@ export function Folders() {
     <div className="space-y-4">
       <h2 className="text-xl font-semibold">Folders</h2>
       {data.folders.length === 0 && (
-        <p className="text-slate-400">No folders configured.</p>
+        <div className="flex flex-col items-center gap-2 py-12 text-slate-500">
+          <FolderX className="size-8 text-slate-600" aria-hidden="true" />
+          <p>No folders configured.</p>
+        </div>
       )}
       <div className="grid gap-3 md:grid-cols-2">
         {data.folders.map((f) => {
@@ -40,17 +49,19 @@ export function Folders() {
                 <div>
                   <Link
                     to={`/folders/${encodeURIComponent(f.id)}/browse/`}
-                    className="text-base font-medium text-sky-400 hover:underline"
+                    className="flex items-center gap-1.5 text-base font-medium text-sky-400 hover:underline"
                   >
+                    <Folder className="size-4" aria-hidden="true" />
                     {f.label || f.id}
                   </Link>
-                  <p className="text-xs text-slate-500">{f.id}</p>
+                  <p className="ml-5 text-xs text-slate-500">{f.id}</p>
                 </div>
                 <Link
                   to={`/folders/${encodeURIComponent(f.id)}/needs`}
-                  className="text-xs text-slate-300 hover:text-slate-100"
+                  className="flex items-center gap-1 text-xs text-slate-300 hover:text-slate-100"
                 >
-                  Needs →
+                  Needs
+                  <ArrowRight className="size-3.5" aria-hidden="true" />
                 </Link>
               </CardHeader>
               <CardBody className="space-y-2 text-sm">
@@ -58,7 +69,12 @@ export function Folders() {
                 <Row label="Type" value={f.type} />
                 <Row label="Paused" value={f.paused ? 'yes' : 'no'} />
                 <Row
-                  label="Peers"
+                  label={
+                    <span className="flex items-center gap-1">
+                      <Users className="size-3.5" aria-hidden="true" />
+                      Peers
+                    </span>
+                  }
                   value={peers.length ? peers.join(', ') : <span className="text-slate-500">—</span>}
                 />
               </CardBody>
@@ -70,7 +86,7 @@ export function Folders() {
   );
 }
 
-function Row({ label, value }: { label: string; value: React.ReactNode }) {
+function Row({ label, value }: { label: React.ReactNode; value: React.ReactNode }) {
   return (
     <div className="flex gap-3">
       <span className="w-16 shrink-0 text-xs uppercase tracking-wide text-slate-500">{label}</span>
