@@ -1,7 +1,6 @@
 services:
   syncbrowser:
-    build: .
-    image: syncbrowser:local
+    image: ghcr.io/bmhatfield/syncbrowser:latest
     ports:
       - "8385:8385"
     environment:

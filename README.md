@@ -4,26 +4,38 @@ A small read-only PWA file browser for a local [Syncthing](https://syncthing.net
 instance. Paste your API key once, then browse folders, drill into files,
 and inspect what each peer still needs to receive.
 
-- **Backend:** Go (`net/http` + `httputil.ReverseProxy` + `go-chi/chi/v5`),
-  `urfave/cli/v3`, `embed.FS`.
-- **Frontend:** React 19 + TypeScript, Vite, TanStack Query, React Router,
-  Tailwind v4, `vite-plugin-pwa`.
+## Install
 
-## Quick start
+Pick one. All three start the server on `http://127.0.0.1:8385`.
 
-You need Go 1.22+, Node 20+, and a running Syncthing instance.
+**Pre-built binary** — download the archive for your OS/arch from the
+[latest release](https://github.com/bmhatfield/syncbrowser/releases/latest),
+extract, and run `./syncbrowser`. Builds are published for
+linux/darwin/windows on amd64 and arm64.
 
-```sh
-make build              # builds the UI bundle, then the Go binary into bin/
-./bin/syncbrowser       # starts on http://127.0.0.1:8385
-```
-
-Open `http://127.0.0.1:8385`, paste your Syncthing API key (Syncthing's
-own UI → Settings → GUI), and you're in.
+**Docker:**
 
 ```sh
-./bin/syncbrowser --help
+docker run --rm -p 8385:8385 \
+  -e SYNCBROWSER_UPSTREAM=http://host.docker.internal:8384 \
+  --add-host host.docker.internal:host-gateway \
+  ghcr.io/bmhatfield/syncbrowser:latest
 ```
+
+**Docker Compose** — the repo ships a [`docker-compose.yml`](./docker-compose.yml):
+
+```sh
+docker compose up -d
+```
+
+Both Docker forms assume Syncthing is reachable on the host via
+`host.docker.internal:8384`. Point `SYNCBROWSER_UPSTREAM` elsewhere if it
+lives on another machine or as a sibling container.
+
+Open `http://127.0.0.1:8385`, paste your Syncthing API key (Syncthing UI
+→ Settings → GUI), and you're in.
+
+To build from source, see [Development](#development).
 
 ## Architecture
 
