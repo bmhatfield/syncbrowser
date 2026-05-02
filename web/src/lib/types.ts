@@ -7,6 +7,11 @@ export interface STDevice {
   addresses?: string[];
   paused?: boolean;
   untrusted?: boolean;
+  compression?: string;
+  introducer?: boolean;
+  autoAcceptFolders?: boolean;
+  maxSendKbps?: number;
+  maxRecvKbps?: number;
 }
 
 export interface STFolderDevice {
@@ -36,6 +41,9 @@ export interface STFolder {
   fsWatcherEnabled?: boolean;
   rescanIntervalS?: number;
   minDiskFree?: STMinDiskFree;
+  ignorePerms?: boolean;
+  ignoreDelete?: boolean;
+  disableFsync?: boolean;
 }
 
 export interface STConfig {

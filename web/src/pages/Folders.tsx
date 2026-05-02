@@ -8,14 +8,18 @@ import {
   Eye,
   Folder,
   FolderX,
+  HardDriveDownload,
   Loader2,
   Lock,
   ShieldAlert,
+  ShieldOff,
+  Trash2,
   Users,
 } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { Card, CardBody, CardHeader } from '../components/ui/Card';
+import { Pill } from '../components/ui/Pill';
 import { Spinner } from '../components/ui/Spinner';
 import { useFolders } from '../hooks/useFolders';
 import { useFolderStatus } from '../hooks/useFolderStatus';
@@ -73,7 +77,7 @@ function FolderCard({
     <Card>
       <CardHeader className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5">
+          <div className="flex flex-wrap items-center gap-1.5">
             <Link
               to={`/folders/${encodeURIComponent(f.id)}/browse/`}
               className="flex items-center gap-1.5 text-base font-medium text-sky-400 hover:underline"
@@ -82,6 +86,9 @@ function FolderCard({
               <span className="truncate">{f.label || f.id}</span>
             </Link>
             {f.paused && <Pill tone="amber">Paused</Pill>}
+            {f.ignoreDelete && <Pill tone="rose" Icon={Trash2}>Deletes ignored</Pill>}
+            {f.disableFsync && <Pill tone="amber" Icon={HardDriveDownload}>fsync off</Pill>}
+            {f.ignorePerms && <Pill tone="slate" Icon={ShieldOff}>Perms ignored</Pill>}
           </div>
           <p className="ml-5 truncate text-xs text-slate-500" title={f.id}>{f.id}</p>
         </div>
@@ -224,35 +231,6 @@ function PeerList({
         );
       })}
     </ul>
-  );
-}
-
-const pillTones = {
-  amber: 'bg-amber-500/15 text-amber-300 ring-amber-500/30',
-  sky: 'bg-sky-500/15 text-sky-300 ring-sky-500/30',
-  rose: 'bg-rose-500/15 text-rose-300 ring-rose-500/30',
-  slate: 'bg-slate-700/40 text-slate-300 ring-slate-600/40',
-} as const;
-
-function Pill({
-  tone,
-  Icon,
-  children,
-}: {
-  tone: keyof typeof pillTones;
-  Icon?: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
-  children: ReactNode;
-}) {
-  return (
-    <span
-      className={
-        'inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide ring-1 ' +
-        pillTones[tone]
-      }
-    >
-      {Icon && <Icon className="size-3" aria-hidden />}
-      {children}
-    </span>
   );
 }
 

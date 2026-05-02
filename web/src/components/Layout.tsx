@@ -43,6 +43,7 @@ export function Layout() {
           </Link>
           <nav className="flex items-center gap-1 text-sm">
             <NavTab to="/folders">Folders</NavTab>
+            <NavTab to="/devices">Devices</NavTab>
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
             <label className="flex items-center gap-2 text-slate-300">
