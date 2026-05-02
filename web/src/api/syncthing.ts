@@ -1,6 +1,7 @@
 import { api, syncthingURL } from './client';
 import type {
   STConfig,
+  STDiskEvent,
   STFileInfo,
   STFolderStatus,
   STNeed,
@@ -22,6 +23,12 @@ export function systemStatus(): Promise<STSystemStatus> {
 
 export function systemVersion(): Promise<STSystemVersion> {
   return api<STSystemVersion>(syncthingURL('/system/version'));
+}
+
+export function diskEvents(
+  opts: { since?: number; limit?: number; timeout?: number } = {},
+): Promise<STDiskEvent[]> {
+  return api<STDiskEvent[]>(syncthingURL('/events/disk', opts));
 }
 
 // /db/browse?folder=&prefix=&levels=1 — the response shape varies across

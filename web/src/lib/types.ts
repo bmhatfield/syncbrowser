@@ -153,3 +153,23 @@ export interface STEvent {
   type: string;
   data: Record<string, unknown>;
 }
+
+// /rest/events/disk — pre-filtered to LocalChangeDetected / RemoteChangeDetected.
+export type STDiskAction = 'added' | 'modified' | 'deleted';
+
+export interface STDiskEventData {
+  folder: string;
+  path: string;
+  action: STDiskAction;
+  type: 'file' | 'dir';
+  modifiedBy: string;
+  label?: string;
+}
+
+export interface STDiskEvent {
+  id: number;
+  globalID?: number;
+  time: string;
+  type: 'LocalChangeDetected' | 'RemoteChangeDetected';
+  data: STDiskEventData;
+}

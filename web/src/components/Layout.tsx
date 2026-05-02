@@ -7,6 +7,7 @@ import { eventsEnabled, setEventsEnabled, useEvents } from '../hooks/useEvents';
 import { Button } from './ui/Button';
 import { Spinner } from './ui/Spinner';
 import { DeviceStatus } from './DeviceStatus';
+import { RecentChanges } from './RecentChanges';
 
 export function Layout() {
   const status = useAuthStatus();
@@ -77,6 +78,7 @@ export function Layout() {
           </div>
         </div>
         <DeviceStatus />
+        <RecentChanges live={liveOn} />
       </header>
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
         <Outlet />
