@@ -3,5 +3,8 @@ package web
 
 import "embed"
 
-//go:embed all:dist
+// No "all:" prefix: dotfiles like .gitkeep (used as a fresh-clone stub
+// holder) are excluded automatically, so they don't bloat the binary.
+//
+//go:embed dist
 var Assets embed.FS

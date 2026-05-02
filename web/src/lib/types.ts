@@ -33,29 +33,31 @@ export type STBrowseEntry =
   | { kind: 'dir'; name: string }
   | { kind: 'file'; name: string };
 
-export interface STFileVersion {
-  id: number;
-  value: number;
-}
-
 export interface STFileBlock {
   hash: string;
   offset: number;
   size: number;
 }
 
+// Syncthing serializes `type` as a protobuf enum integer in some versions
+// and the string name (e.g. "FILE_INFO_TYPE_FILE") in others. The version
+// vector likewise has shifted between a bare array and a `{counters:[...]}`
+// wrapper. Both are passed through as `unknown` and normalized at the call
+// site rather than re-modeled here.
+export interface STFileEntry {
+  name: string;
+  size: number;
+  modified: string;
+  modifiedBy: string;
+  type: number | string;
+  version?: unknown;
+  numBlocks?: number;
+  blocks?: STFileBlock[];
+}
+
 export interface STFileInfo {
-  global?: {
-    name: string;
-    size: number;
-    modified: string;
-    modifiedBy: string;
-    type: number;
-    version: STFileVersion[];
-    numBlocks?: number;
-    blocks?: STFileBlock[];
-  };
-  local?: STFileInfo['global'];
+  global?: STFileEntry;
+  local?: STFileEntry;
   availability?: { id: string; fromTemporary: boolean }[];
 }
 
@@ -67,9 +69,10 @@ export interface STNeedFile {
 }
 
 export interface STNeed {
-  progress: STNeedFile[];
-  queued: STNeedFile[];
-  rest: STNeedFile[];
+  // Syncthing returns these as null (or omits them) when empty.
+  progress?: STNeedFile[] | null;
+  queued?: STNeedFile[] | null;
+  rest?: STNeedFile[] | null;
   total?: number;
 }
 

@@ -4,6 +4,7 @@ import { Card, CardBody, CardHeader } from '../components/ui/Card';
 import { Spinner } from '../components/ui/Spinner';
 import { useFile } from '../hooks/useFile';
 import { useFolders } from '../hooks/useFolders';
+import type { STFileEntry } from '../lib/types';
 import { formatBytes, formatDate, shortDeviceID } from '../lib/format';
 
 export function FileDetail() {
@@ -84,7 +85,7 @@ function Info({
   data,
   deviceNames,
 }: {
-  data: { name: string; size: number; modified: string; modifiedBy: string; type: number; numBlocks?: number; version: { id: number; value: number }[] } | undefined;
+  data: STFileEntry | undefined;
   deviceNames: Map<string, string>;
 }) {
   if (!data) return <p className="text-sm text-slate-500">Not present.</p>;
@@ -100,11 +101,7 @@ function Info({
       <Detail label="Type" value={fileTypeLabel(data.type)} />
       <Detail
         label="Version"
-        value={
-          <code className="text-xs text-slate-300">
-            {data.version.map((v) => `${shortDeviceID(String(v.id))}:${v.value}`).join(', ') || '—'}
-          </code>
-        }
+        value={<code className="text-xs text-slate-300">{formatVersion(data.version)}</code>}
       />
     </dl>
   );
@@ -119,14 +116,55 @@ function Detail({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
-function fileTypeLabel(t: number): string {
-  // 0=FILE, 1=DIRECTORY, 2=SYMLINK_FILE (legacy), 3=SYMLINK_DIRECTORY (legacy), 4=SYMLINK
-  switch (t) {
-    case 0: return 'File';
-    case 1: return 'Directory';
-    case 4: return 'Symlink';
-    default: return `Type ${t}`;
+function fileTypeLabel(t: number | string | undefined): string {
+  // protobuf enum: 0=FILE, 1=DIRECTORY, 2=SYMLINK_FILE (legacy),
+  // 3=SYMLINK_DIRECTORY (legacy), 4=SYMLINK. Modern Syncthing serializes
+  // these as the string names instead.
+  if (t === 0 || t === 'FILE_INFO_TYPE_FILE') return 'File';
+  if (t === 1 || t === 'FILE_INFO_TYPE_DIRECTORY') return 'Directory';
+  if (t === 4 || t === 'FILE_INFO_TYPE_SYMLINK') return 'Symlink';
+  if (t === undefined || t === null) return '—';
+  return String(t);
+}
+
+interface VersionCounter {
+  id?: number | string;
+  value?: number | string;
+  ID?: number | string;
+  Value?: number | string;
+}
+
+function formatVersion(version: unknown): string {
+  if (version === null || version === undefined) return '—';
+
+  // Modern Syncthing: array of pre-formatted "deviceID:value" strings.
+  if (Array.isArray(version) && version.every((v) => typeof v === 'string')) {
+    return version.length ? version.join(', ') : '—';
   }
+
+  // Protobuf-derived shape: { counters: [{id, value}, ...] }.
+  if (typeof version === 'object' && !Array.isArray(version)) {
+    const counters = (version as { counters?: unknown }).counters;
+    if (Array.isArray(counters)) return formatCounters(counters);
+    return '—';
+  }
+
+  // Legacy: array of { id, value } counter objects.
+  if (Array.isArray(version)) return formatCounters(version);
+  return '—';
+}
+
+function formatCounters(counters: unknown[]): string {
+  const parts: string[] = [];
+  for (const c of counters) {
+    if (!c || typeof c !== 'object') continue;
+    const x = c as VersionCounter;
+    const id = x.id ?? x.ID;
+    const value = x.value ?? x.Value;
+    if (id === undefined || value === undefined) continue;
+    parts.push(`${shortDeviceID(String(id))}:${String(value)}`);
+  }
+  return parts.length ? parts.join(', ') : '—';
 }
 
 function decodePath(rest: string): string {

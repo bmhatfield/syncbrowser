@@ -111,9 +111,9 @@ function NeedTable({
   const data = query.data;
   if (!data) return null;
   const all = [
-    ...data.progress.map((f) => ({ ...f, group: 'in progress' as const })),
-    ...data.queued.map((f) => ({ ...f, group: 'queued' as const })),
-    ...data.rest.map((f) => ({ ...f, group: 'pending' as const })),
+    ...(data.progress ?? []).map((f) => ({ ...f, group: 'in progress' as const })),
+    ...(data.queued ?? []).map((f) => ({ ...f, group: 'queued' as const })),
+    ...(data.rest ?? []).map((f) => ({ ...f, group: 'pending' as const })),
   ];
   if (all.length === 0) {
     return <p className="text-sm text-slate-400">{label}: nothing pending. Fully in sync.</p>;

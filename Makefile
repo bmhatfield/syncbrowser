@@ -29,4 +29,4 @@ fmt:
 clean:
 	rm -rf bin web/dist
 	mkdir -p web/dist
-	touch web/dist/.gitkeep
+	touch web/dist/.gitkeep web/dist/index.html

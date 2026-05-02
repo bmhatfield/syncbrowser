@@ -5,10 +5,10 @@ export function getConfig(): Promise<STConfig> {
   return api<STConfig>(syncthingURL('/system/config'));
 }
 
-// /db/browse?folder=&prefix=&levels=1 returns an object whose keys are entry
-// names; values are either nested objects (directories) or arrays of two ints
-// like [size, modifiedNanos] for files.
-export type STBrowseRaw = Record<string, unknown>;
+// /db/browse?folder=&prefix=&levels=1 — the response shape varies across
+// Syncthing versions. Modern versions return an array of FileInfo objects;
+// older versions returned a recursive object map. useBrowse normalizes both.
+export type STBrowseRaw = unknown;
 
 export function browse(folder: string, prefix: string, levels = 1): Promise<STBrowseRaw> {
   return api<STBrowseRaw>(

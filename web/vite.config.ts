@@ -45,6 +45,9 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    sourcemap: true,
+    // Off for production builds — source maps are ~5× the size of the
+    // runtime bundle and get embedded into the Go binary. Vite's dev
+    // server still serves maps via its own pipeline.
+    sourcemap: false,
   },
 });
